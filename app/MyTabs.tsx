@@ -1,75 +1,94 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import Main from './screens/Main';
-import Profile from './screens/Profile';
 import Statistics from './screens/Statistics';
 import History from './screens/History';
-import MAdd from './screens/MAdd';
+import Exercises from './screens/Exercises';
+import Profile from './screens/Profile';
+import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 
-const MyTabs = () => {
+function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: 'green',
-        tabBarInactiveTintColor: 'black',
-        tabBarStyle: { backgroundColor: 'white' },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: 'bold',
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          backgroundColor: '#fff', // Background color of the tab bar
+          borderTopWidth: 0,
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 3 },
+          shadowOpacity: 0.3,
+          shadowRadius: 4,
+          height: 60, // Increase the height of the tab bar
         },
+        tabBarActiveTintColor: '#28a745', // Active icon and text color
+        tabBarInactiveTintColor: '#000', // Inactive icon and text color
+        tabBarLabelStyle: {
+          fontSize: 14, // Increase the font size
+          fontWeight: 'bold',
+          marginBottom: 5, // Adjust the margin to center the text vertically
+        },
+        tabBarIconStyle: {
+          marginTop: 5, // Adjust the margin to center the icons vertically
+        },
+        headerShown: false, // Hide the header for all tabs
       }}
     >
       <Tab.Screen
         name="Home"
         component={Main}
         options={{
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="home" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="home" size={30} color={color} /> // Increase icon size
           ),
+          tabBarLabel: 'Home',
         }}
       />
       <Tab.Screen
         name="Statistic"
         component={Statistics}
         options={{
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="linechart" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="linechart" size={30} color={color} /> // Increase icon size
           ),
+          tabBarLabel: 'Statistic',
         }}
       />
       <Tab.Screen
         name="History"
         component={History}
         options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="history" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="history" size={30} color={color} /> // Increase icon size
           ),
+          tabBarLabel: 'History',
         }}
       />
       <Tab.Screen
         name="Exercise"
-        component={MAdd}
+        component={Exercises}
         options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="dumbbell" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="dumbbell" size={30} color={color} /> // Increase icon size
           ),
+          tabBarLabel: 'Exercise',
         }}
       />
       <Tab.Screen
         name="Profile"
         component={Profile}
         options={{
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account" size={24} color={color} />
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" size={30} color={color} /> // Increase icon size
           ),
+          tabBarLabel: 'Profile',
         }}
       />
     </Tab.Navigator>
   );
-};
+}
 
 export default MyTabs;

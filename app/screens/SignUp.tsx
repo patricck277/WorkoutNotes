@@ -69,9 +69,9 @@ const styles = StyleSheet.create({
     marginTop: -50, // Adjust this value to move everything up
   },
   logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 16,
+    width: 180,
+    height: 180,
+    marginBottom: 13,
   },
   title: {
     fontSize: 32,
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     color: '#fff', // change to white for better contrast with dark overlay
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#fff', // change to white for better contrast with dark overlay
     marginBottom: 32,
   },

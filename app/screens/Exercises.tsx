@@ -4,7 +4,7 @@ import React from 'react'
 const Exercise = () => {
   return (
     <View>
-      <Text>History</Text>
+      <Text>Historyaa</Text>
     </View>
   )
 }
