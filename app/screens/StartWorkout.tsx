@@ -12,7 +12,7 @@ type Props = {
 };
 
 type WorkoutData = {
-  sets: any[]; // Możesz zdefiniować dokładniejszy typ dla sets, jeśli masz szczegółowe dane
+  sets: any[];
   startTime: Date | null;
   endTime: Date | null;
 };

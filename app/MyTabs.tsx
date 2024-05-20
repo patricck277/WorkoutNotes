@@ -24,17 +24,17 @@ function MyTabs() {
           shadowRadius: 4,
           height: 60, // Increase the height of the tab bar
         },
-        tabBarActiveTintColor: '#28a745', // Active icon and text color
-        tabBarInactiveTintColor: '#000', // Inactive icon and text color
+        tabBarActiveTintColor: '#28a745',
+        tabBarInactiveTintColor: '#000',
         tabBarLabelStyle: {
-          fontSize: 14, // Increase the font size
+          fontSize: 14,
           fontWeight: 'bold',
-          marginBottom: 5, // Adjust the margin to center the text vertically
+          marginBottom: 5, 
         },
         tabBarIconStyle: {
-          marginTop: 5, // Adjust the margin to center the icons vertically
+          marginTop: 5,
         },
-        headerShown: false, // Hide the header for all tabs
+        headerShown: false,
       }}
     >
       <Tab.Screen
@@ -42,7 +42,7 @@ function MyTabs() {
         component={Main}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="home" size={30} color={color} /> // Increase icon size
+            <AntDesign name="home" size={30} color={color} />
           ),
           tabBarLabel: 'Home',
         }}
@@ -52,7 +52,7 @@ function MyTabs() {
         component={Statistics}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="linechart" size={30} color={color} /> // Increase icon size
+            <AntDesign name="linechart" size={30} color={color} />
           ),
           tabBarLabel: 'Statistic',
         }}
@@ -62,7 +62,7 @@ function MyTabs() {
         component={History}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="history" size={30} color={color} /> // Increase icon size
+            <MaterialCommunityIcons name="history" size={30} color={color} />
           ),
           tabBarLabel: 'History',
         }}
@@ -72,7 +72,7 @@ function MyTabs() {
         component={Exercises}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="dumbbell" size={30} color={color} /> // Increase icon size
+            <MaterialCommunityIcons name="dumbbell" size={30} color={color} />
           ),
           tabBarLabel: 'Exercise',
         }}
@@ -82,7 +82,7 @@ function MyTabs() {
         component={Profile}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={30} color={color} /> // Increase icon size
+            <MaterialCommunityIcons name="account" size={30} color={color} />
           ),
           tabBarLabel: 'Profile',
         }}

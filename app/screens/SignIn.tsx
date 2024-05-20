@@ -86,7 +86,7 @@ const SignIn = () => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: 'black', // Set background color to grey
+    backgroundColor: 'black',
     justifyContent: 'center',
   },
   container: {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginTop: -50, // Adjust this value to move everything up
+    marginTop: -50,
   },
   logo: {
     width: 180,
@@ -105,11 +105,11 @@ const styles = StyleSheet.create({
     fontSize: 38,
     fontWeight: 'bold',
     marginBottom: 6,
-    color: '#fff', // change to white for better contrast with dark overlay
+    color: '#fff',
   },
   subtitle: {
     fontSize: 20,
-    color: '#fff', // change to white for better contrast with dark overlay
+    color: '#fff',
     marginBottom: 32,
   },
   input: {
