@@ -16,7 +16,7 @@ export type RootStackParamList = {
   AddRoutine: undefined;
   Profile: undefined;
   RoutineDetails: { routineId: string };
-  StartWorkout: { routineId: string }; // Add StartWorkout
+  StartWorkout: { routineId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
