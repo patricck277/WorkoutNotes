@@ -1,0 +1,102 @@
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
+import { doc, setDoc } from 'firebase/firestore';
+import { useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList, MeasurementData } from '../../App';
+
+type EditMeasurementsScreenNavigationProp = NavigationProp<RootStackParamList, 'EditMeasurements'>;
+type EditMeasurementsScreenRouteProp = RouteProp<RootStackParamList, 'EditMeasurements'>;
+
+const EditMeasurements = ({ route }: { route: EditMeasurementsScreenRouteProp }) => {
+  const { measurements } = route.params;
+  const [editedMeasurements, setEditedMeasurements] = useState(measurements.measurements);
+  const navigation = useNavigation<EditMeasurementsScreenNavigationProp>();
+
+  const handleSaveMeasurements = async () => {
+    const date = measurements.date; // Use the existing date
+    const newMeasurementData = {
+      date,
+      measurements: editedMeasurements,
+    };
+
+    const userUid = FIREBASE_AUTH.currentUser?.uid;
+    if (userUid) {
+      await setDoc(doc(FIRESTORE_DB, 'users', userUid), { measurements: newMeasurementData }, { merge: true });
+    }
+
+    navigation.navigate('Profile', { updatedMeasurements: newMeasurementData });
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <StatusBar barStyle="light-content" />
+      {editedMeasurements.map((measurement, index) => (
+        <View key={measurement.name} style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>{measurement.name}</Text>
+          <TextInput
+            style={styles.input}
+            value={measurement.value}
+            onChangeText={(text) => {
+              const updatedMeasurements = [...editedMeasurements];
+              updatedMeasurements[index].value = text;
+              setEditedMeasurements(updatedMeasurements);
+            }}
+            keyboardType="numeric"
+            placeholder="Enter value"
+            placeholderTextColor="#999"
+          />
+        </View>
+      ))}
+      <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeasurements}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+    width: '100%',
+  },
+  inputContainer: {
+    marginBottom: 16,
+    width: '100%',
+  },
+  inputLabel: {
+    fontSize: 16,
+    color: 'white',
+    marginBottom: 8,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#1e1e1e',
+    fontSize: 16,
+    color: 'white',
+  },
+  saveButton: {
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '100%',
+    marginTop: 20,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
+
+export default EditMeasurements;

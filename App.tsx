@@ -5,18 +5,43 @@ import SignUp from './app/screens/SignUp';
 import SignIn from './app/screens/SignIn';
 import MyTabs from './app/MyTabs';
 import AddRoutine from './app/screens/AddRoutine';
-import Profile from './app/screens/Profile';
+import Profile from './app/profile/Profile';
 import RoutineDetails from './app/screens/RoutineDetails';
 import StartWorkout from './app/screens/StartWorkout'; // Import StartWorkout
+import Exercises from './app/screens/Exercises';
+import ExerciseDetails from './app/exercises/ExerciseDetails';
+import AddExercise from './app/exercises/AddExercise';
+import UpdateMeasurements from './app/profile/UpdateMeasurements';
+import EditMeasurements from './app/profile/EditMeasurements';
+
+export type Measurement = {
+  name: string;
+  value: string;
+};
+
+export type MeasurementData = {
+  date: string;
+  measurements: Measurement[];
+};
 
 export type RootStackParamList = {
   SignUp: undefined;
   SignIn: undefined;
   Main: undefined;
   AddRoutine: undefined;
-  Profile: undefined;
+  Profile: { updatedMeasurements?: MeasurementData } | undefined;
   RoutineDetails: { routineId: string };
-  StartWorkout: { routineId: string };
+  StartWorkout: { routineId: string }; // Add StartWorkout
+  Exercises: undefined;
+  ExerciseDetails: {
+    name: string;
+    description?: string;
+    imageUrl?: string;
+    id?: string;
+  };
+  AddExercise: undefined; // Add AddExercise
+  UpdateMeasurements: undefined;
+  EditMeasurements: { measurements: MeasurementData };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -32,6 +57,11 @@ export default function App() {
         <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
         <Stack.Screen name="RoutineDetails" component={RoutineDetails} options={{ headerShown: false }} />
         <Stack.Screen name="StartWorkout" component={StartWorkout} options={{ headerShown: false }} />
+        <Stack.Screen name="Exercises" component={Exercises} options={{ headerShown: false }} />
+        <Stack.Screen name="ExerciseDetails" component={ExerciseDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="AddExercise" component={AddExercise} options={{ headerShown: false }} />
+        <Stack.Screen name="UpdateMeasurements" component={UpdateMeasurements} options={{ headerShown: false }} />
+        <Stack.Screen name="EditMeasurements" component={EditMeasurements} options={{ headerShown: false }} />  
       </Stack.Navigator>
     </NavigationContainer>
   );
