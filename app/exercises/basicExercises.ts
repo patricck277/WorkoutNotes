@@ -12,6 +12,5 @@ export type ExerciseItem = {
     { id: '3', name: 'Lunge', description: 'A basic lunge exercise.', imageUrl: 'https://example.com/lunge.jpg' },
     { id: '4', name: 'Pull-up', description: 'A basic pull-up exercise.', imageUrl: 'https://example.com/pullup.jpg' },
     { id: '5', name: 'Plank', description: 'A basic plank exercise.', imageUrl: 'https://example.com/plank.jpg' },
-    // Dodaj więcej podstawowych ćwiczeń, jeśli potrzeba
   ];
   
