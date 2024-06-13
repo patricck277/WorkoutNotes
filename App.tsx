@@ -7,12 +7,14 @@ import MyTabs from './app/MyTabs';
 import AddRoutine from './app/screens/AddRoutine';
 import Profile from './app/profile/Profile';
 import RoutineDetails from './app/screens/RoutineDetails';
-import StartWorkout from './app/screens/StartWorkout'; // Import StartWorkout
+import StartWorkout from './app/screens/StartWorkout';
 import Exercises from './app/screens/Exercises';
 import ExerciseDetails from './app/exercises/ExerciseDetails';
 import AddExercise from './app/exercises/AddExercise';
 import UpdateMeasurements from './app/profile/UpdateMeasurements';
 import EditMeasurements from './app/profile/EditMeasurements';
+import CalendarScreen from './app/history/Calendar';
+import History from './app/history/History';
 
 export type Measurement = {
   name: string;
@@ -31,7 +33,7 @@ export type RootStackParamList = {
   AddRoutine: undefined;
   Profile: { updatedMeasurements?: MeasurementData } | undefined;
   RoutineDetails: { routineId: string };
-  StartWorkout: { routineId: string }; // Add StartWorkout
+  StartWorkout: { routineId: string };
   Exercises: undefined;
   ExerciseDetails: {
     name: string;
@@ -39,9 +41,11 @@ export type RootStackParamList = {
     imageUrl?: string;
     id?: string;
   };
-  AddExercise: undefined; // Add AddExercise
+  AddExercise: undefined;
   UpdateMeasurements: undefined;
   EditMeasurements: { measurements: MeasurementData };
+  Calendar: undefined;
+  History: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -61,7 +65,9 @@ export default function App() {
         <Stack.Screen name="ExerciseDetails" component={ExerciseDetails} options={{ headerShown: false }} />
         <Stack.Screen name="AddExercise" component={AddExercise} options={{ headerShown: false }} />
         <Stack.Screen name="UpdateMeasurements" component={UpdateMeasurements} options={{ headerShown: false }} />
-        <Stack.Screen name="EditMeasurements" component={EditMeasurements} options={{ headerShown: false }} />  
+        <Stack.Screen name="EditMeasurements" component={EditMeasurements} options={{ headerShown: false }} /> 
+        <Stack.Screen name="Calendar" component={CalendarScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

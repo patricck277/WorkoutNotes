@@ -1,35 +1,42 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
-import { useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
+import { collection, addDoc } from 'firebase/firestore';
+import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList, MeasurementData } from '../../App';
 
 type EditMeasurementsScreenNavigationProp = NavigationProp<RootStackParamList, 'EditMeasurements'>;
 type EditMeasurementsScreenRouteProp = RouteProp<RootStackParamList, 'EditMeasurements'>;
 
-const EditMeasurements = ({ route }: { route: EditMeasurementsScreenRouteProp }) => {
+const EditMeasurements = () => {
+  const route = useRoute<EditMeasurementsScreenRouteProp>();
   const { measurements } = route.params;
   const [editedMeasurements, setEditedMeasurements] = useState(measurements.measurements);
   const navigation = useNavigation<EditMeasurementsScreenNavigationProp>();
 
   const handleSaveMeasurements = async () => {
-    const date = measurements.date; // Use the existing date
-    const newMeasurementData = {
+    const date = new Date().toISOString().split('T')[0]; // Data  format YYYY-MM-DD
+    const newMeasurementData: MeasurementData = {
       date,
       measurements: editedMeasurements,
     };
 
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (userUid) {
-      await setDoc(doc(FIRESTORE_DB, 'users', userUid), { measurements: newMeasurementData }, { merge: true });
+      await addDoc(collection(FIRESTORE_DB, 'users', userUid, 'measurements'), newMeasurementData);
     }
 
-    navigation.navigate('Profile', { updatedMeasurements: newMeasurementData });
+    navigation.navigate('Main', { screen: 'Profile', params: { updatedMeasurements: newMeasurementData } } as any);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: 'black' }}
+      contentContainerStyle={styles.container}
+      resetScrollToCoords={{ x: 0, y: 0 }}
+      scrollEnabled={true}
+    >
       <StatusBar barStyle="light-content" />
       {editedMeasurements.map((measurement, index) => (
         <View key={measurement.name} style={styles.inputContainer}>
@@ -51,14 +58,13 @@ const EditMeasurements = ({ route }: { route: EditMeasurementsScreenRouteProp })
       <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeasurements}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'black',
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,

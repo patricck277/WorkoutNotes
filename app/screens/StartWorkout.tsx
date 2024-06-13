@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, RouteProp } from '@react-navigation/native';
-import { FIRESTORE_DB } from '../../firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 
@@ -12,7 +12,7 @@ type Props = {
 };
 
 type WorkoutData = {
-  sets: any[]; // Możesz zdefiniować dokładniejszy typ dla sets, jeśli masz szczegółowe dane
+  sets: any[];
   startTime: Date | null;
   endTime: Date | null;
 };
@@ -30,6 +30,9 @@ const StartWorkout = ({ route }: Props) => {
 
   const handleEndWorkout = async () => {
     const endTime = new Date();
+    const userUid = FIREBASE_AUTH.currentUser?.uid;
+    if (!userUid) return; // Ensure the user is logged in
+
     setWorkoutData(prevWorkoutData => ({ ...prevWorkoutData, endTime }));
 
     try {
@@ -37,6 +40,7 @@ const StartWorkout = ({ route }: Props) => {
         routineId,
         ...workoutData,
         endTime,
+        userId: userUid,
       });
       navigation.goBack();
     } catch (error) {

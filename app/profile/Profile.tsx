@@ -19,22 +19,22 @@ const Profile = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const route = useRoute<ProfileScreenRouteProp>();
 
-  useEffect(() => {
-    const fetchMeasurements = async () => {
-      const userUid = FIREBASE_AUTH.currentUser?.uid;
-      if (!userUid) return;
+  const fetchMeasurements = async () => {
+    const userUid = FIREBASE_AUTH.currentUser?.uid;
+    if (!userUid) return;
 
-      const docRef = doc(FIRESTORE_DB, 'users', userUid);
-      const docSnap = await getDoc(docRef);
+    const docRef = doc(FIRESTORE_DB, 'users', userUid);
+    const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.measurements) {
-          setMeasurements(data.measurements);
-        }
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.latestMeasurements) {
+        setMeasurements(data.latestMeasurements);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     if (route.params?.updatedMeasurements) {
       setMeasurements(route.params.updatedMeasurements);
     } else {
@@ -78,8 +78,8 @@ const Profile = () => {
             <TouchableOpacity style={styles.updateButton} onPress={() => navigation.navigate('UpdateMeasurements')}>
               <Text style={styles.updateButtonText}>New Measurements</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditMeasurements', { measurements })}>
-              <Text style={styles.editButtonText}>Edit Current Measurements</Text>
+            <TouchableOpacity style={styles.updateButton} onPress={() => navigation.navigate('EditMeasurements', { measurements })}>
+              <Text style={styles.updateButtonText}>Edit Measurements</Text>
             </TouchableOpacity>
           </>
         ) : (
@@ -144,22 +144,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     width: '100%',
+    marginBottom: 10,
   },
   updateButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  editButton: {
-    backgroundColor: '#ffc107',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '100%',
-    marginTop: 10,
-  },
-  editButtonText: {
-    color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
   },

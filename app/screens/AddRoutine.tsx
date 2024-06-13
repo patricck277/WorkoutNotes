@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { FIRESTORE_DB } from '../../firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 
@@ -13,10 +13,14 @@ const AddRoutine = () => {
   const navigation = useNavigation<AddRoutineScreenNavigationProp>();
 
   const handleAddRoutine = async () => {
+    const userUid = FIREBASE_AUTH.currentUser?.uid;
+    if (!userUid) return; // 
+
     try {
       await addDoc(collection(FIRESTORE_DB, 'routines'), {
         name: routineName,
-        exercises: exercises.split(',').map(exercise => exercise.trim())
+        exercises: exercises.split(',').map(exercise => exercise.trim()),
+        userId: userUid,
       });
       navigation.navigate('Main');
     } catch (error) {

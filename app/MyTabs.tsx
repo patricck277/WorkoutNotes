@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Main from './screens/Main';
 import Statistics from './screens/Statistics';
-import History from './screens/History';
+import History from './history/History';
 import Exercises from './screens/Exercises';
 import Profile from './profile/Profile';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';

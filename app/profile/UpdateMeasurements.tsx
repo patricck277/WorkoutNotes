@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../App';
+import { RootStackParamList, MeasurementData } from '../../App';
 
 type UpdateMeasurementsScreenNavigationProp = NavigationProp<RootStackParamList, 'UpdateMeasurements'>;
 
 const UpdateMeasurements = () => {
   const [newMeasurements, setNewMeasurements] = useState([
+    { name: 'Weight', value: '' },
     { name: 'Chest', value: '' },
     { name: 'Biceps (left)', value: '' },
     { name: 'Biceps (right)', value: '' },
@@ -20,22 +22,27 @@ const UpdateMeasurements = () => {
   const navigation = useNavigation<UpdateMeasurementsScreenNavigationProp>();
 
   const handleSaveMeasurements = async () => {
-    const date = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-    const newMeasurementData = {
+    const date = new Date().toISOString().split('T')[0]; // Data format YYYY-MM-DD format
+    const newMeasurementData: MeasurementData = {
       date,
       measurements: newMeasurements,
     };
 
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (userUid) {
-      await setDoc(doc(FIRESTORE_DB, 'users', userUid), { measurements: newMeasurementData }, { merge: true });
+      await addDoc(collection(FIRESTORE_DB, 'users', userUid, 'measurements'), newMeasurementData);
     }
 
-    navigation.navigate('Profile', { updatedMeasurements: newMeasurementData });
+    navigation.navigate('Main', { screen: 'Profile', params: { updatedMeasurements: newMeasurementData } } as any);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: 'black' }}
+      contentContainerStyle={styles.container}
+      resetScrollToCoords={{ x: 0, y: 0 }}
+      scrollEnabled={true}
+    >
       <StatusBar barStyle="light-content" />
       {newMeasurements.map((measurement, index) => (
         <View key={measurement.name} style={styles.inputContainer}>
@@ -57,14 +64,13 @@ const UpdateMeasurements = () => {
       <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeasurements}>
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: 'black',
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,

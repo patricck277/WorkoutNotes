@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { RootStackParamList } from '../../App';
 
@@ -19,7 +19,11 @@ const Main = () => {
   const navigation = useNavigation<MainScreenNavigationProp>();
 
   const fetchRoutines = async () => {
-    const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'routines'));
+    const userUid = FIREBASE_AUTH.currentUser?.uid;
+    if (!userUid) return; // Ensure the user is logged in
+
+    const q = query(collection(FIRESTORE_DB, 'routines'), where('userId', '==', userUid));
+    const querySnapshot = await getDocs(q);
     const fetchedRoutines: RoutineItem[] = [];
     querySnapshot.forEach(doc => {
       fetchedRoutines.push({ id: doc.id, ...doc.data() } as RoutineItem);
