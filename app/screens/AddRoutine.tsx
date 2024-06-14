@@ -1,25 +1,55 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
+import { Picker } from '@react-native-picker/picker';
+import { ExerciseItem, basicExercises } from '../exercises/basicExercises';
+import { MaterialIcons } from '@expo/vector-icons';
 
 type AddRoutineScreenNavigationProp = NavigationProp<RootStackParamList, 'AddRoutine'>;
 
 const AddRoutine = () => {
   const [routineName, setRoutineName] = useState('');
-  const [exercises, setExercises] = useState('');
+  const [label, setLabel] = useState('');
+  const [labelColor, setLabelColor] = useState('#007bff'); // Default color
+  const [exercises, setExercises] = useState<string[]>([]);
+  const [selectedExercise, setSelectedExercise] = useState<string | undefined>();
+  const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
   const navigation = useNavigation<AddRoutineScreenNavigationProp>();
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      const fetchedExercises: ExerciseItem[] = [...basicExercises];
+      const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
+      querySnapshot.forEach(doc => {
+        const data = doc.data() as ExerciseItem;
+        fetchedExercises.push({ id: doc.id, name: data.name });
+      });
+      setAllExercises(fetchedExercises);
+    };
+
+    fetchExercises();
+  }, []);
+
+  const handleAddExercise = () => {
+    if (selectedExercise) {
+      setExercises([...exercises, selectedExercise]);
+      setSelectedExercise(undefined);
+    }
+  };
 
   const handleAddRoutine = async () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
-    if (!userUid) return; // 
+    if (!userUid) return;
 
     try {
       await addDoc(collection(FIRESTORE_DB, 'routines'), {
         name: routineName,
-        exercises: exercises.split(',').map(exercise => exercise.trim()),
+        label: label,
+        labelColor: labelColor,
+        exercises: exercises,
         userId: userUid,
       });
       navigation.navigate('Main');
@@ -28,8 +58,10 @@ const AddRoutine = () => {
     }
   };
 
+  const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8'];
+
   return (
-    <View style={styles.background}>
+    <ScrollView contentContainerStyle={styles.background}>
       <StatusBar barStyle="light-content" />
       <Text style={styles.title}>Add Routine</Text>
       <TextInput
@@ -39,23 +71,66 @@ const AddRoutine = () => {
         style={styles.input}
         placeholderTextColor="#999"
       />
-      <TextInput
-        placeholder="Exercises (comma separated)"
-        value={exercises}
-        onChangeText={setExercises}
-        style={styles.input}
-        placeholderTextColor="#999"
-      />
-      <Button title="Add" onPress={handleAddRoutine} />
-    </View>
+      <Text style={styles.labelText}>Select Label:</Text>
+      <Picker
+        selectedValue={label}
+        onValueChange={(itemValue: string) => setLabel(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Mon" value="Mon" />
+        <Picker.Item label="Tue" value="Tue" />
+        <Picker.Item label="Wed" value="Wed" />
+        <Picker.Item label="Thu" value="Thu" />
+        <Picker.Item label="Fri" value="Fri" />
+        <Picker.Item label="Sat" value="Sat" />
+        <Picker.Item label="Sun" value="Sun" />
+      </Picker>
+      <Text style={styles.labelText}>Select Label Color:</Text>
+      <View style={styles.colorContainer}>
+        {colors.map(color => (
+          <TouchableOpacity
+            key={color}
+            style={[styles.colorButton, { backgroundColor: color }]}
+            onPress={() => setLabelColor(color)}
+          >
+            {labelColor === color && (
+              <MaterialIcons name="check" size={24} color="white" />
+            )}
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.labelText}>Select Exercise:</Text>
+      <Picker
+        selectedValue={selectedExercise}
+        onValueChange={(itemValue: string) => setSelectedExercise(itemValue)}
+        style={styles.picker}
+      >
+        {allExercises.map(exercise => (
+          <Picker.Item key={exercise.id} label={exercise.name} value={exercise.name} />
+        ))}
+      </Picker>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddExercise}>
+        <Text style={styles.addButtonText}>Add Exercise</Text>
+      </TouchableOpacity>
+      {exercises.length > 0 && (
+        <View style={styles.exercisesContainer}>
+          <Text style={styles.exercisesTitle}>Selected Exercises:</Text>
+          {exercises.map((exercise, index) => (
+            <Text key={index} style={styles.exerciseText}>{exercise}</Text>
+          ))}
+        </View>
+      )}
+      <TouchableOpacity style={styles.saveButton} onPress={handleAddRoutine}>
+        <Text style={styles.saveButtonText}>Save Routine</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: 'black',
-    justifyContent: 'center',
     padding: 16,
   },
   title: {
@@ -76,6 +151,68 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
     fontSize: 16,
     color: 'white',
+  },
+  labelText: {
+    fontSize: 18,
+    color: 'white',
+    marginBottom: 8,
+  },
+  picker: {
+    width: '100%',
+    height: 50,
+    color: 'white',
+    backgroundColor: '#1e1e1e',
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  colorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  colorButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButton: {
+    backgroundColor: '#007bff',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  exercisesContainer: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  exercisesTitle: {
+    fontSize: 18,
+    color: 'white',
+    marginBottom: 8,
+  },
+  exerciseText: {
+    fontSize: 16,
+    color: 'white',
+    marginBottom: 4,
+  },
+  saveButton: {
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

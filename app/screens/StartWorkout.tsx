@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, RouteProp } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, getDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
+import { ExerciseItem, basicExercises } from '../exercises/basicExercises';
+import { Picker } from '@react-native-picker/picker';
 
 type StartWorkoutScreenRouteProp = RouteProp<RootStackParamList, 'StartWorkout'>;
 
@@ -11,67 +13,216 @@ type Props = {
   route: StartWorkoutScreenRouteProp;
 };
 
+type SetData = {
+  setNumber: number;
+  weight: string;
+  reps: string;
+  comment: string;
+};
+
+type ExerciseData = {
+  exercise: string;
+  sets: SetData[];
+};
+
 type WorkoutData = {
-  sets: any[];
+  exercises: ExerciseData[];
   startTime: Date | null;
   endTime: Date | null;
 };
 
 const StartWorkout = ({ route }: Props) => {
-  const { routineId } = route.params;
-  const [isWorkoutStarted, setIsWorkoutStarted] = useState(false);
-  const [workoutData, setWorkoutData] = useState<WorkoutData>({ sets: [], startTime: null, endTime: null });
+  const { routineId, autoStart } = route.params;
+  const [isWorkoutStarted, setIsWorkoutStarted] = useState(autoStart);
+  const [workoutData, setWorkoutData] = useState<WorkoutData>({ exercises: [], startTime: null, endTime: null });
+  const [currentExercise, setCurrentExercise] = useState<string | undefined>();
+  const [setData, setSetData] = useState<SetData[]>([]);
+  const [selectedExercise, setSelectedExercise] = useState<string | undefined>();
+  const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
+  const [currentSetNumber, setCurrentSetNumber] = useState(1);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      const fetchedExercises: ExerciseItem[] = [...basicExercises];
+      const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as ExerciseItem;
+        fetchedExercises.push({ id: doc.id, name: data.name });
+      });
+      setAllExercises(fetchedExercises);
+
+      const docRef = doc(FIRESTORE_DB, 'routines', routineId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const routineData = docSnap.data();
+        setAllExercises(
+          fetchedExercises.filter(exercise => routineData.exercises.includes(exercise.name))
+        );
+      }
+    };
+
+    fetchExercises();
+
+    if (autoStart) {
+      handleStartWorkout();
+    }
+  }, [routineId, autoStart]);
 
   const handleStartWorkout = () => {
     setIsWorkoutStarted(true);
     setWorkoutData({ ...workoutData, startTime: new Date() });
   };
 
+  const handleAddSet = () => {
+    const newSet: SetData = {
+      setNumber: currentSetNumber,
+      weight: '',
+      reps: '',
+      comment: '',
+    };
+    setSetData([...setData, newSet]);
+    setCurrentSetNumber(currentSetNumber + 1);
+  };
+
+  const handleEndExercise = () => {
+    setWorkoutData(prevData => ({
+      ...prevData,
+      exercises: [...prevData.exercises, { exercise: currentExercise!, sets: setData }]
+    }));
+    setSetData([]);
+    setCurrentSetNumber(1);
+    setCurrentExercise(undefined);
+  };
+
   const handleEndWorkout = async () => {
-    const endTime = new Date();
-    const userUid = FIREBASE_AUTH.currentUser?.uid;
-    if (!userUid) return; // Ensure the user is logged in
+    Alert.alert(
+      'Confirm End Workout',
+      'Are you sure you want to end the workout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'End Workout',
+          style: 'destructive',
+          onPress: async () => {
+            const endTime = new Date();
+            const userUid = FIREBASE_AUTH.currentUser?.uid;
+            if (!userUid) return; // Ensure the user is logged in
 
-    setWorkoutData(prevWorkoutData => ({ ...prevWorkoutData, endTime }));
+            setWorkoutData(prevWorkoutData => ({ ...prevWorkoutData, endTime }));
 
-    try {
-      await addDoc(collection(FIRESTORE_DB, 'workouts'), {
-        routineId,
-        ...workoutData,
-        endTime,
-        userId: userUid,
-      });
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error ending workout: ', error);
-    }
+            try {
+              await addDoc(collection(FIRESTORE_DB, 'workouts'), {
+                routineId,
+                ...workoutData,
+                endTime,
+                userId: userUid,
+              });
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error ending workout: ', error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleSetChange = (index: number, field: keyof SetData, value: string) => {
+    const updatedSets = [...setData];
+    (updatedSets[index][field] as string) = value;
+    setSetData(updatedSets);
   };
 
   return (
-    <View style={styles.background}>
-      <StatusBar barStyle="light-content" />
-      <Text style={styles.title}>Workout</Text>
-      <Text style={styles.subtitle}>Routine ID: {routineId}</Text>
-      {!isWorkoutStarted ? (
-        <TouchableOpacity style={styles.startButton} onPress={handleStartWorkout}>
-          <Text style={styles.startButtonText}>Start Workout</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.endButton} onPress={handleEndWorkout}>
-          <Text style={styles.endButtonText}>End Workout</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView contentContainerStyle={styles.background}>
+        <StatusBar barStyle="light-content" />
+        <Text style={styles.title}>Workout</Text>
+        {!isWorkoutStarted ? (
+          <TouchableOpacity style={styles.startButton} onPress={handleStartWorkout}>
+            <Text style={styles.startButtonText}>Start Workout</Text>
+          </TouchableOpacity>
+        ) : (
+          <>
+            {!currentExercise ? (
+              <>
+                <Text style={styles.labelText}>Select Exercise:</Text>
+                <Picker
+                  selectedValue={selectedExercise}
+                  onValueChange={(itemValue: string) => setSelectedExercise(itemValue)}
+                  style={styles.picker}
+                >
+                  {allExercises.map(exercise => (
+                    <Picker.Item key={exercise.id} label={exercise.name} value={exercise.name} />
+                  ))}
+                </Picker>
+                <TouchableOpacity
+                  style={styles.startExerciseButton}
+                  onPress={() => {
+                    setCurrentExercise(selectedExercise);
+                    setSelectedExercise(undefined);
+                  }}
+                >
+                  <Text style={styles.startExerciseButtonText}>Start Exercise</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.subtitle}>Exercise: {currentExercise}</Text>
+                {setData.map((item, index) => (
+                  <View style={styles.setContainer} key={index}>
+                    <Text style={styles.setText}>Set {item.setNumber}</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Weight"
+                      placeholderTextColor="#999"
+                      value={item.weight}
+                      onChangeText={(text) => handleSetChange(index, 'weight', text)}
+                      keyboardType="numeric"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Reps"
+                      placeholderTextColor="#999"
+                      value={item.reps}
+                      onChangeText={(text) => handleSetChange(index, 'reps', text)}
+                      keyboardType="numeric"
+                    />
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Comment"
+                      placeholderTextColor="#999"
+                      value={item.comment}
+                      onChangeText={(text) => handleSetChange(index, 'comment', text)}
+                    />
+                  </View>
+                ))}
+                <TouchableOpacity style={styles.addButton} onPress={handleAddSet}>
+                  <Text style={styles.addButtonText}>Add Set</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.endExerciseButton} onPress={handleEndExercise}>
+                  <Text style={styles.endExerciseButtonText}>End Exercise</Text>
+                </TouchableOpacity>
+              </>
+            )}
+            <TouchableOpacity style={styles.endButton} onPress={handleEndWorkout}>
+              <Text style={styles.endButtonText}>End Workout</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
   },
   title: {
@@ -87,8 +238,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
+  labelText: {
+    fontSize: 18,
+    color: 'white',
+    marginBottom: 8,
+  },
+  picker: {
+    width: '100%',
+    height: 50,
+    color: 'white',
+    backgroundColor: '#1e1e1e',
+    borderRadius: 8,
+    marginBottom: 16,
+  },
   startButton: {
-    width: 200,
+    width: '100%',
     height: 50,
     backgroundColor: '#28a745',
     justifyContent: 'center',
@@ -100,8 +264,72 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  startExerciseButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#007bff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+  },
+  startExerciseButtonText: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  setContainer: {
+    backgroundColor: '#1e1e1e',
+    padding: 20,
+    marginVertical: 8,
+    borderRadius: 10,
+    width: '100%',
+  },
+  setText: {
+    fontSize: 18,
+    color: 'white',
+    marginBottom: 8,
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: '#1e1e1e',
+    fontSize: 16,
+    color: 'white',
+  },
+  addButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#007bff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  endExerciseButton: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#d9534f',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+    marginTop: 8,
+  },
+  endExerciseButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   endButton: {
-    width: 200,
+    width: '100%',
     height: 50,
     backgroundColor: '#d9534f',
     justifyContent: 'center',

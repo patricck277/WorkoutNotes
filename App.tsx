@@ -15,6 +15,7 @@ import UpdateMeasurements from './app/profile/UpdateMeasurements';
 import EditMeasurements from './app/profile/EditMeasurements';
 import CalendarScreen from './app/history/Calendar';
 import History from './app/history/History';
+import EditRoutine from './app/screens/EditRoutine';
 
 export type Measurement = {
   name: string;
@@ -33,7 +34,7 @@ export type RootStackParamList = {
   AddRoutine: undefined;
   Profile: { updatedMeasurements?: MeasurementData } | undefined;
   RoutineDetails: { routineId: string };
-  StartWorkout: { routineId: string };
+  StartWorkout: { routineId: string; autoStart?: boolean };
   Exercises: undefined;
   ExerciseDetails: {
     name: string;
@@ -46,6 +47,7 @@ export type RootStackParamList = {
   EditMeasurements: { measurements: MeasurementData };
   Calendar: undefined;
   History: undefined;
+  EditRoutine: { routineId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -68,6 +70,7 @@ export default function App() {
         <Stack.Screen name="EditMeasurements" component={EditMeasurements} options={{ headerShown: false }} /> 
         <Stack.Screen name="Calendar" component={CalendarScreen} options={{ headerShown: false }} />
         <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
+        <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

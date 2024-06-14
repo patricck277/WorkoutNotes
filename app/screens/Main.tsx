@@ -3,7 +3,6 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'r
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
 import { RootStackParamList } from '../../App';
 
 type MainScreenNavigationProp = NavigationProp<RootStackParamList, 'Main'>;
@@ -11,6 +10,8 @@ type MainScreenNavigationProp = NavigationProp<RootStackParamList, 'Main'>;
 type RoutineItem = {
   id: string;
   name: string;
+  label: string;
+  labelColor: string;
   exercises: string[];
 };
 
@@ -20,7 +21,7 @@ const Main = () => {
 
   const fetchRoutines = async () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
-    if (!userUid) return; // Ensure the user is logged in
+    if (!userUid) return;
 
     const q = query(collection(FIRESTORE_DB, 'routines'), where('userId', '==', userUid));
     const querySnapshot = await getDocs(q);
@@ -37,19 +38,12 @@ const Main = () => {
     }, [])
   );
 
-  const handleSignOut = () => {
-    signOut(FIREBASE_AUTH)
-      .then(() => {
-        navigation.navigate('SignIn');
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  };
-
   const renderRoutine = ({ item }: { item: RoutineItem }) => (
     <TouchableOpacity style={styles.routineContainer} onPress={() => navigation.navigate('RoutineDetails', { routineId: item.id })}>
-      <Text style={styles.routineDay}>{item.name}</Text>
+      <View style={styles.routineHeader}>
+        <Text style={[styles.routineLabel, { backgroundColor: item.labelColor }]}>{item.label}</Text>
+        <Text style={styles.routineName}>{item.name}</Text>
+      </View>
       <Text style={styles.routineExercises}>{item.exercises.join(', ')}</Text>
     </TouchableOpacity>
   );
@@ -77,7 +71,7 @@ const styles = StyleSheet.create({
     paddingTop: StatusBar.currentHeight || 0,
   },
   routineList: {
-    paddingBottom: 100, // Ensure space for the add button
+    paddingBottom: 100,
   },
   routineContainer: {
     backgroundColor: '#1e1e1e',
@@ -86,7 +80,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 10,
   },
-  routineDay: {
+  routineHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  routineLabel: {
+    borderRadius: 50,
+    color: 'white',
+    fontWeight: 'bold',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginRight: 10,
+  },
+  routineName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
@@ -94,13 +101,12 @@ const styles = StyleSheet.create({
   routineExercises: {
     fontSize: 18,
     color: 'white',
-    marginTop: 5,
   },
   addButton: {
     position: 'absolute',
     bottom: 20,
     left: '50%',
-    transform: [{ translateX: -100 }], // Center the button horizontally
+    transform: [{ translateX: -100 }],
     width: 200,
     height: 50,
     backgroundColor: '#28a745',
