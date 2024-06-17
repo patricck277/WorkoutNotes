@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 
 type HistoryScreenNavigationProp = NavigationProp<RootStackParamList, 'History'>;
@@ -10,6 +10,7 @@ type HistoryScreenNavigationProp = NavigationProp<RootStackParamList, 'History'>
 type WorkoutItem = {
   id: string;
   routineId: string;
+  routineName: string;
   startTime: string;
   endTime: string;
 };
@@ -25,15 +26,23 @@ const History = () => {
     const q = query(collection(FIRESTORE_DB, 'workouts'), where('userId', '==', userUid));
     const querySnapshot = await getDocs(q);
     const fetchedWorkouts: WorkoutItem[] = [];
-    querySnapshot.forEach(doc => {
-      const data = doc.data();
-      fetchedWorkouts.push({
-        id: doc.id,
-        routineId: data.routineId,
-        startTime: data.startTime.toDate().toISOString(),
-        endTime: data.endTime.toDate().toISOString(),
-      });
-    });
+
+    for (const docSnapshot of querySnapshot.docs) {
+      const data = docSnapshot.data();
+      const routineDoc = await getDoc(doc(FIRESTORE_DB, 'routines', data.routineId));
+      const routineData = routineDoc.data();
+
+      if (routineData) {
+        fetchedWorkouts.push({
+          id: docSnapshot.id,
+          routineId: data.routineId,
+          routineName: routineData.name,
+          startTime: data.startTime.toDate().toISOString(),
+          endTime: data.endTime.toDate().toISOString(),
+        });
+      }
+    }
+
     setWorkouts(fetchedWorkouts);
   };
 
@@ -44,11 +53,13 @@ const History = () => {
   );
 
   const renderWorkout = ({ item }: { item: WorkoutItem }) => (
-    <View style={styles.workoutContainer}>
-      <Text style={styles.workoutText}>Routine ID: {item.routineId}</Text>
-      <Text style={styles.workoutText}>Start Time: {new Date(item.startTime).toLocaleString()}</Text>
-      <Text style={styles.workoutText}>End Time: {new Date(item.endTime).toLocaleString()}</Text>
-    </View>
+    <TouchableOpacity
+      style={styles.workoutContainer}
+      onPress={() => navigation.navigate('WorkoutDetails', { workoutId: item.id })}
+    >
+      <Text style={styles.workoutText}>Routine: {item.routineName}</Text>
+      <Text style={styles.workoutText}>Date: {new Date(item.startTime).toLocaleString()}</Text>
+    </TouchableOpacity>
   );
 
   return (
@@ -88,20 +99,17 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   calendarButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: '50%',
-    transform: [{ translateX: -100 }],
-    width: 200,
-    height: 50,
-    backgroundColor: '#007bff',
-    justifyContent: 'center',
+    width: '100%',
+    padding: 15,
+    borderRadius: 5,
     alignItems: 'center',
-    borderRadius: 25,
+    marginTop: 10,
+    marginBottom: 30,
+    backgroundColor: '#007bff',
   },
   calendarButtonText: {
-    fontSize: 18,
     color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
   },
 });

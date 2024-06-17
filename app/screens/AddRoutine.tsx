@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView, Alert } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
@@ -12,22 +12,31 @@ type AddRoutineScreenNavigationProp = NavigationProp<RootStackParamList, 'AddRou
 
 const AddRoutine = () => {
   const [routineName, setRoutineName] = useState('');
-  const [label, setLabel] = useState('');
+  const [label, setLabel] = useState('Mon'); // Default to first label
   const [labelColor, setLabelColor] = useState('#007bff'); // Default color
   const [exercises, setExercises] = useState<string[]>([]);
-  const [selectedExercise, setSelectedExercise] = useState<string | undefined>();
+  const [selectedExercise, setSelectedExercise] = useState<string | undefined>(undefined);
   const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
   const navigation = useNavigation<AddRoutineScreenNavigationProp>();
 
   useEffect(() => {
     const fetchExercises = async () => {
+      const userUid = FIREBASE_AUTH.currentUser?.uid;
+      if (!userUid) return;
+
       const fetchedExercises: ExerciseItem[] = [...basicExercises];
       const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
+
       querySnapshot.forEach(doc => {
         const data = doc.data() as ExerciseItem;
-        fetchedExercises.push({ id: doc.id, name: data.name });
+        if (data.userId === userUid) {
+          fetchedExercises.push({ id: doc.id, name: data.name });
+        }
       });
       setAllExercises(fetchedExercises);
+      if (fetchedExercises.length > 0) {
+        setSelectedExercise(fetchedExercises[0].name); // default to first exercise
+      }
     };
 
     fetchExercises();
@@ -41,6 +50,11 @@ const AddRoutine = () => {
   };
 
   const handleAddRoutine = async () => {
+    if (routineName.length < 4) {
+      Alert.alert('Validation Error', 'Routine Name must be at least 4 characters long.');
+      return;
+    }
+
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (!userUid) return;
 
@@ -65,7 +79,7 @@ const AddRoutine = () => {
       <StatusBar barStyle="light-content" />
       <Text style={styles.title}>Add Routine</Text>
       <TextInput
-        placeholder="Routine Name"
+        placeholder="Routine Name (Min. 4 characters)"
         value={routineName}
         onChangeText={setRoutineName}
         style={styles.input}
@@ -84,6 +98,7 @@ const AddRoutine = () => {
         <Picker.Item label="Fri" value="Fri" />
         <Picker.Item label="Sat" value="Sat" />
         <Picker.Item label="Sun" value="Sun" />
+        <Picker.Item label="WO" value="WO" />
       </Picker>
       <Text style={styles.labelText}>Select Label Color:</Text>
       <View style={styles.colorContainer}>
@@ -102,7 +117,7 @@ const AddRoutine = () => {
       <Text style={styles.labelText}>Select Exercise:</Text>
       <Picker
         selectedValue={selectedExercise}
-        onValueChange={(itemValue: string) => setSelectedExercise(itemValue)}
+        onValueChange={(itemValue: string) => setSelectedExercise(itemValue || undefined)}
         style={styles.picker}
       >
         {allExercises.map(exercise => (
@@ -204,7 +219,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   saveButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007bff',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',

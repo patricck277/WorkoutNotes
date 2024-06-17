@@ -40,6 +40,7 @@ const StartWorkout = ({ route }: Props) => {
   const [selectedExercise, setSelectedExercise] = useState<string | undefined>();
   const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
   const [currentSetNumber, setCurrentSetNumber] = useState(1);
+  const [completedExercises, setCompletedExercises] = useState<ExerciseData[]>([]);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -86,10 +87,12 @@ const StartWorkout = ({ route }: Props) => {
   };
 
   const handleEndExercise = () => {
+    const newExercise: ExerciseData = { exercise: currentExercise!, sets: setData };
     setWorkoutData(prevData => ({
       ...prevData,
-      exercises: [...prevData.exercises, { exercise: currentExercise!, sets: setData }]
+      exercises: [...prevData.exercises, newExercise]
     }));
+    setCompletedExercises([...completedExercises, newExercise]);
     setSetData([]);
     setCurrentSetNumber(1);
     setCurrentExercise(undefined);
@@ -212,6 +215,16 @@ const StartWorkout = ({ route }: Props) => {
             <TouchableOpacity style={styles.endButton} onPress={handleEndWorkout}>
               <Text style={styles.endButtonText}>End Workout</Text>
             </TouchableOpacity>
+            {completedExercises.length > 0 && (
+              <View style={styles.completedExercisesContainer}>
+                <Text style={styles.completedExercisesTitle}>Completed Exercises:</Text>
+                {completedExercises.map((exercise, index) => (
+                  <Text key={index} style={styles.completedExerciseText}>
+                    {exercise.exercise}: {exercise.sets.length} sets
+                  </Text>
+                ))}
+              </View>
+            )}
           </>
         )}
       </ScrollView>
@@ -341,6 +354,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
+  },
+  completedExercisesContainer: {
+    marginTop: 16,
+  },
+  completedExercisesTitle: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  completedExerciseText: {
+    fontSize: 16,
+    color: 'white',
+    marginBottom: 4,
   },
 });
 

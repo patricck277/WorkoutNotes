@@ -11,10 +11,12 @@ type SignInScreenNavigationProp = NavigationProp<RootStackParamList, 'SignIn'>;
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigation = useNavigation<SignInScreenNavigationProp>();
 
   const [request, response, promptAsync] = Facebook.useAuthRequest({
-    clientId: 'YOUR_FACEBOOK_APP_ID',
+    clientId: '1:828603558193:web:b03585fc6ef17981a0e810',
+    redirectUri: 'https://workout-notes-7a343.firebaseapp.com/__/auth/handler'
   });
 
   useEffect(() => {
@@ -28,6 +30,7 @@ const SignIn = () => {
           })
           .catch(error => {
             console.error(error);
+            setErrorMessage('Error signing in with Facebook.');
           });
       }
     }
@@ -40,6 +43,7 @@ const SignIn = () => {
       })
       .catch(error => {
         console.error(error);
+        setErrorMessage('Invalid email or password.');
       });
   };
 
@@ -50,6 +54,7 @@ const SignIn = () => {
         <Image source={require('../../assets/WorkoutNotes_Logo.png')} style={styles.logo} />
         <Text style={styles.title}>Workout Notes</Text>
         <Text style={styles.subtitle}>Sign in to continue</Text>
+        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <TextInput
           placeholder="Email"
           value={email}
@@ -111,6 +116,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#fff',
     marginBottom: 32,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 16,
   },
   input: {
     width: '100%',

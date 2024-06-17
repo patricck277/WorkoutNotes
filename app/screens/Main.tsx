@@ -105,19 +105,25 @@ const styles = StyleSheet.create({
   addButton: {
     position: 'absolute',
     bottom: 20,
-    left: '50%',
-    transform: [{ translateX: -100 }],
-    width: 200,
+    width: '90%',
     height: 50,
-    backgroundColor: '#28a745',
+    backgroundColor: '#007bff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 25,
+    borderRadius: 5,
+    marginHorizontal: '5%',
   },
   addButtonText: {
     fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
+  },
+  button: {
+    width: '100%',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
 

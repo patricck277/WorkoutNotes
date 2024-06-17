@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TextInput, StyleSheet, StatusBar, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -26,7 +26,7 @@ const Exercises = () => {
         fetchedExercises.push({ id: doc.id, ...doc.data() } as ExerciseItem);
       });
 
-      console.log('Fetched User Exercises:', fetchedExercises); // Debugging
+      console.log('Fetched User Exercises:', fetchedExercises);
       setExercises([...basicExercises, ...fetchedExercises]);
     } catch (error) {
       console.error('Error fetching exercises: ', error);
@@ -69,7 +69,7 @@ const Exercises = () => {
         style={styles.addButton}
         onPress={() => navigation.navigate('AddExercise')}
       >
-        <Text style={styles.addButtonText}>ADD EXERCISE</Text>
+        <Text style={styles.addButtonText}>Add Exercise</Text>
       </TouchableOpacity>
     </View>
   );
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   exerciseList: {
-    paddingBottom: 100, // Ensure space for the add button
+    paddingBottom: 100,
   },
   exerciseContainer: {
     backgroundColor: '#1e1e1e',
@@ -101,13 +101,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
     marginLeft: 10,
-    flex: 1, // Ensure text takes up the remaining space
+    flex: 1,
   },
   thumbnail: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    marginLeft: 10, // Add margin to the left of the thumbnail
+    marginLeft: 10,
   },
   addButton: {
     backgroundColor: '#007bff',
@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
+    width: '100%',
   },
   addButtonText: {
     color: 'white',

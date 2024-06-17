@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, FlatList, SafeAreaView } from 'react-native';
 import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { RootStackParamList, MeasurementData } from '../../App';
 
 type ProfileScreenNavigationProp = NavigationProp<RootStackParamList, 'Profile'>;
@@ -37,10 +37,19 @@ const Profile = () => {
   useEffect(() => {
     if (route.params?.updatedMeasurements) {
       setMeasurements(route.params.updatedMeasurements);
+      saveMeasurements(route.params.updatedMeasurements);
     } else {
       fetchMeasurements();
     }
   }, [route.params?.updatedMeasurements]);
+
+  const saveMeasurements = async (measurements: MeasurementData) => {
+    const userUid = FIREBASE_AUTH.currentUser?.uid;
+    if (!userUid) return;
+
+    const docRef = doc(FIRESTORE_DB, 'users', userUid);
+    await setDoc(docRef, { latestMeasurements: measurements }, { merge: true });
+  };
 
   const handleSignOut = () => {
     signOut(FIREBASE_AUTH)
@@ -59,13 +68,9 @@ const Profile = () => {
   );
 
   return (
-    <View style={styles.background}>
+    <SafeAreaView style={styles.background}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
-        <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-          <Text style={styles.signOutButtonText}>Sign Out</Text>
-        </TouchableOpacity>
-
         {measurements ? (
           <>
             <Text style={styles.dateText}>Measurements from: {measurements.date}</Text>
@@ -74,21 +79,25 @@ const Profile = () => {
               renderItem={renderMeasurement}
               keyExtractor={item => item.name}
               style={styles.measurementList}
+              contentContainerStyle={styles.measurementListContent}
             />
-            <TouchableOpacity style={styles.updateButton} onPress={() => navigation.navigate('UpdateMeasurements')}>
-              <Text style={styles.updateButtonText}>New Measurements</Text>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateMeasurements')}>
+              <Text style={styles.buttonText}>New Measurements</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.updateButton} onPress={() => navigation.navigate('EditMeasurements', { measurements })}>
-              <Text style={styles.updateButtonText}>Edit Measurements</Text>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('EditMeasurements', { measurements })}>
+              <Text style={styles.buttonText}>Edit Measurements</Text>
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={styles.updateButton} onPress={() => navigation.navigate('UpdateMeasurements')}>
-            <Text style={styles.updateButtonText}>Update Measurements</Text>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateMeasurements')}>
+            <Text style={styles.buttonText}>Update Measurements</Text>
           </TouchableOpacity>
         )}
+        <TouchableOpacity style={[styles.button, styles.signOutButton]} onPress={handleSignOut}>
+          <Text style={styles.buttonText}>Sign Out</Text>
+        </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -96,32 +105,36 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     backgroundColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   container: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    width: '100%',
   },
-  signOutButton: {
-    width: 200,
+  button: {
+    width: '90%',
     height: 50,
-    backgroundColor: '#28a745',
+    backgroundColor: '#007bff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 25,
-    marginBottom: 20,
+    borderRadius: 5,
+    marginVertical: 10,
   },
-  signOutButtonText: {
+  signOutButton: {
+    backgroundColor: '#dc3545',
+    marginTop: 'auto',
+  },
+  buttonText: {
     fontSize: 18,
     color: 'white',
     fontWeight: 'bold',
   },
   measurementList: {
     width: '100%',
-    marginBottom: 20,
+  },
+  measurementListContent: {
+    paddingBottom: 20,
   },
   measurementContainer: {
     backgroundColor: '#1e1e1e',
@@ -137,19 +150,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
     marginBottom: 10,
-  },
-  updateButton: {
-    backgroundColor: '#007bff',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 10,
-  },
-  updateButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
 });
 

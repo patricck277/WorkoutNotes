@@ -10,15 +10,33 @@ type SignUpScreenNavigationProp = NavigationProp<RootStackParamList, 'SignUp'>;
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigation = useNavigation<SignUpScreenNavigationProp>();
 
   const handleSignUp = () => {
+    setError(''); // Clear
+
+    if (!email.includes('@')) {
+      setError('Invalid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password should be at least 6 characters');
+      return;
+    }
+
     createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
       .then(userCredential => {
         navigation.navigate('Main' as never);
       })
       .catch(error => {
         console.error(error);
+        if (error.code === 'auth/email-already-in-use') {
+          setError('The email address is already in use.');
+        } else {
+          setError('Failed to create account. Please try again.');
+        }
       });
   };
 
@@ -29,6 +47,7 @@ const SignUp = () => {
         <Image source={require('../../assets/WorkoutNotes_Logo.png')} style={styles.logo} />
         <Text style={styles.title}>Create an Account</Text>
         <Text style={styles.subtitle}>Sign up to get started</Text>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
         <TextInput
           placeholder="Email"
           value={email}
@@ -82,7 +101,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 20,
     color: '#fff',
-    marginBottom: 32,
+    marginBottom: 8,
   },
   input: {
     width: '100%',
@@ -114,6 +133,10 @@ const styles = StyleSheet.create({
   link: {
     fontSize: 16,
     color: '#007bff',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 8,
   },
 });
 

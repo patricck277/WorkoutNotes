@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
@@ -42,12 +42,12 @@ const AddExercise = () => {
   };
 
   const handleAddExercise = async () => {
-    if (name && description && image) {
+    if (name.length >= 4 && description) {
       try {
         await addDoc(collection(FIRESTORE_DB, 'exercises'), {
           name,
           description,
-          imageUrl: image,
+          imageUrl: image || '',
           userId: FIREBASE_AUTH.currentUser?.uid || null,
         });
         navigation.goBack();
@@ -55,7 +55,7 @@ const AddExercise = () => {
         console.error('Error adding exercise: ', error);
       }
     } else {
-      alert('Please fill in all fields and add an image.');
+      alert('Exercise name must be at least 4 characters long and description must be provided.');
     }
   };
 
@@ -64,14 +64,14 @@ const AddExercise = () => {
       <Text style={styles.title}>Add New Exercise</Text>
       <TextInput
         style={styles.input}
-        placeholder="Exercise Name"
+        placeholder="Exercise Name (Min. 4 characters)"
         value={name}
         onChangeText={setName}
         placeholderTextColor="#999"
       />
       <TextInput
         style={styles.input}
-        placeholder="Exercise Description"
+        placeholder="Exercise Description (Min. 4 characters)"
         value={description}
         onChangeText={setDescription}
         placeholderTextColor="#999"
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   addButton: {
-    backgroundColor: '#28a745',
+    backgroundColor: '#007bff',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
