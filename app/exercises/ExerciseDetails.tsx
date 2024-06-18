@@ -1,16 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { RootStackParamList } from '../../App';
 import { FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
 
-type ExerciseDetailsRouteProp = RouteProp<RootStackParamList, 'ExerciseDetails'>;
+type ExerciseDetailsRouteProp = RouteProp<
+  RootStackParamList,
+  'ExerciseDetails'
+>;
 
 const ExerciseDetails = () => {
   const route = useRoute<ExerciseDetailsRouteProp>();
-  const { name: initialName, description: initialDescription, imageUrl: initialImageUrl, id } = route.params;
+  const {
+    name: initialName,
+    description: initialDescription,
+    imageUrl: initialImageUrl,
+    id,
+  } = route.params;
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   const [imageUrl, setImageUrl] = useState(initialImageUrl);
@@ -105,7 +121,9 @@ const ExerciseDetails = () => {
             placeholderTextColor="#999"
             multiline
           />
-          {imageUrl && <Image source={{ uri: imageUrl }} style={styles.image} />}
+          {imageUrl && (
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+          )}
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.button} onPress={pickImage}>
               <Text style={styles.buttonText}>Pick Image</Text>
@@ -115,10 +133,16 @@ const ExerciseDetails = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.spacer} />
-          <TouchableOpacity style={styles.saveButton} onPress={handleUpdateExercise}>
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleUpdateExercise}
+          >
             <Text style={styles.saveButtonText}>Save Changes</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setIsEditing(false)}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => setIsEditing(false)}
+          >
             <Text style={styles.cancelButtonText}>Cancel</Text>
           </TouchableOpacity>
         </>
@@ -126,8 +150,13 @@ const ExerciseDetails = () => {
         <>
           <Text style={styles.title}>{name}</Text>
           <Text style={styles.description}>{description}</Text>
-          {imageUrl && <Image source={{ uri: imageUrl }} style={styles.image} />}
-          <TouchableOpacity style={styles.editButton} onPress={() => setIsEditing(true)}>
+          {imageUrl && (
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+          )}
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => setIsEditing(true)}
+          >
             <Text style={styles.editButtonText}>Edit Exercise</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.deleteButton} onPress={confirmDelete}>
@@ -241,7 +270,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   spacer: {
-    height: 20, // 
+    height: 20, //
   },
 });
 

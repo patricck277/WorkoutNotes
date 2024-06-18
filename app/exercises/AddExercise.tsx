@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
@@ -8,7 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../App';
 
-type AddExerciseScreenNavigationProp = NavigationProp<RootStackParamList, 'AddExercise'>;
+type AddExerciseScreenNavigationProp = NavigationProp<
+  RootStackParamList,
+  'AddExercise'
+>;
 
 const AddExercise = () => {
   const [name, setName] = useState('');
@@ -55,7 +65,9 @@ const AddExercise = () => {
         console.error('Error adding exercise: ', error);
       }
     } else {
-      alert('Exercise name must be at least 4 characters long and description must be provided.');
+      alert(
+        'Exercise name must be at least 4 characters long and description must be provided.'
+      );
     }
   };
 

@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  StatusBar,
+} from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -27,10 +35,10 @@ const SignUp = () => {
     }
 
     createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
-      .then(userCredential => {
+      .then((userCredential) => {
         navigation.navigate('Main' as never);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         if (error.code === 'auth/email-already-in-use') {
           setError('The email address is already in use.');
@@ -44,7 +52,10 @@ const SignUp = () => {
     <View style={styles.background}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
-        <Image source={require('../../assets/WorkoutNotes_Logo.png')} style={styles.logo} />
+        <Image
+          source={require('../../assets/WorkoutNotes_Logo.png')}
+          style={styles.logo}
+        />
         <Text style={styles.title}>Create an Account</Text>
         <Text style={styles.subtitle}>Sign up to get started</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -66,7 +77,9 @@ const SignUp = () => {
         <TouchableOpacity style={styles.button} onPress={handleSignUp}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SignIn' as never)}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SignIn' as never)}
+        >
           <Text style={styles.link}>Already have an account? Sign In</Text>
         </TouchableOpacity>
       </View>

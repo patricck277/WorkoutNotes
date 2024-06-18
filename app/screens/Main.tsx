@@ -1,6 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+} from 'react-native';
+import {
+  useNavigation,
+  NavigationProp,
+  useFocusEffect,
+} from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
@@ -23,10 +34,13 @@ const Main = () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (!userUid) return;
 
-    const q = query(collection(FIRESTORE_DB, 'routines'), where('userId', '==', userUid));
+    const q = query(
+      collection(FIRESTORE_DB, 'routines'),
+      where('userId', '==', userUid)
+    );
     const querySnapshot = await getDocs(q);
     const fetchedRoutines: RoutineItem[] = [];
-    querySnapshot.forEach(doc => {
+    querySnapshot.forEach((doc) => {
       fetchedRoutines.push({ id: doc.id, ...doc.data() } as RoutineItem);
     });
     setRoutines(fetchedRoutines);
@@ -39,9 +53,18 @@ const Main = () => {
   );
 
   const renderRoutine = ({ item }: { item: RoutineItem }) => (
-    <TouchableOpacity style={styles.routineContainer} onPress={() => navigation.navigate('RoutineDetails', { routineId: item.id })}>
+    <TouchableOpacity
+      style={styles.routineContainer}
+      onPress={() =>
+        navigation.navigate('RoutineDetails', { routineId: item.id })
+      }
+    >
       <View style={styles.routineHeader}>
-        <Text style={[styles.routineLabel, { backgroundColor: item.labelColor }]}>{item.label}</Text>
+        <Text
+          style={[styles.routineLabel, { backgroundColor: item.labelColor }]}
+        >
+          {item.label}
+        </Text>
         <Text style={styles.routineName}>{item.name}</Text>
       </View>
       <Text style={styles.routineExercises}>{item.exercises.join(', ')}</Text>
@@ -54,10 +77,13 @@ const Main = () => {
       <FlatList
         data={routines}
         renderItem={renderRoutine}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.routineList}
       />
-      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddRoutine')}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('AddRoutine')}
+      >
         <Text style={styles.addButtonText}>Add Routine</Text>
       </TouchableOpacity>
     </View>

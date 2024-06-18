@@ -6,7 +6,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "format": "npx prettier --write \"app/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@react-native-community/slider": "^4.5.2",

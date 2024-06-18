@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { LineChart, BarChart } from 'react-native-chart-kit';
@@ -34,10 +41,14 @@ type MeasurementData = {
 };
 
 const Statistics = () => {
-  const [measurementData, setMeasurementData] = useState<{ [key: string]: number[] }>({});
+  const [measurementData, setMeasurementData] = useState<{
+    [key: string]: number[];
+  }>({});
   const [dates, setDates] = useState<string[]>([]);
   const [workoutData, setWorkoutData] = useState<WorkoutData[]>([]);
-  const [activeSections, setActiveSections] = useState<{ [key: string]: boolean }>({
+  const [activeSections, setActiveSections] = useState<{
+    [key: string]: boolean;
+  }>({
     measurementStats: false,
     workoutStats: false,
     exerciseStats: false,
@@ -47,35 +58,51 @@ const Statistics = () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (!userUid) return;
 
-    const measurementsCollection = collection(FIRESTORE_DB, 'users', userUid, 'measurements');
+    const measurementsCollection = collection(
+      FIRESTORE_DB,
+      'users',
+      userUid,
+      'measurements'
+    );
     const measurementsQuery = query(measurementsCollection);
-    const unsubscribeMeasurements = onSnapshot(measurementsQuery, (snapshot) => {
-      const measurementData: MeasurementData[] = [];
-      snapshot.forEach(doc => {
-        measurementData.push(doc.data() as MeasurementData);
-      });
-
-      measurementData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-      const dates = measurementData.map(md => md.date);
-      const measurements = measurementData.reduce((acc, md) => {
-        md.measurements.forEach((measurement: Measurement) => {
-          if (!acc[measurement.name]) {
-            acc[measurement.name] = [];
-          }
-          acc[measurement.name].push(parseFloat(measurement.value));
+    const unsubscribeMeasurements = onSnapshot(
+      measurementsQuery,
+      (snapshot) => {
+        const measurementData: MeasurementData[] = [];
+        snapshot.forEach((doc) => {
+          measurementData.push(doc.data() as MeasurementData);
         });
-        return acc;
-      }, {} as { [key: string]: number[] });
 
-      setDates(dates);
-      setMeasurementData(measurements);
-    });
+        measurementData.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
 
-    const workoutsQuery = query(collection(FIRESTORE_DB, 'workouts'), where('userId', '==', userUid));
+        const dates = measurementData.map((md) => md.date);
+        const measurements = measurementData.reduce(
+          (acc, md) => {
+            md.measurements.forEach((measurement: Measurement) => {
+              if (!acc[measurement.name]) {
+                acc[measurement.name] = [];
+              }
+              acc[measurement.name].push(parseFloat(measurement.value));
+            });
+            return acc;
+          },
+          {} as { [key: string]: number[] }
+        );
+
+        setDates(dates);
+        setMeasurementData(measurements);
+      }
+    );
+
+    const workoutsQuery = query(
+      collection(FIRESTORE_DB, 'workouts'),
+      where('userId', '==', userUid)
+    );
     const unsubscribeWorkouts = onSnapshot(workoutsQuery, (snapshot) => {
       const fetchedWorkouts: WorkoutData[] = [];
-      snapshot.forEach(doc => {
+      snapshot.forEach((doc) => {
         const data = doc.data();
         fetchedWorkouts.push({
           exercises: data.exercises,
@@ -93,7 +120,7 @@ const Statistics = () => {
   }, []);
 
   const toggleSection = (section: string) => {
-    setActiveSections(prevState => ({
+    setActiveSections((prevState) => ({
       ...prevState,
       [section]: !prevState[section],
     }));
@@ -103,10 +130,10 @@ const Statistics = () => {
     let totalWeight = 0;
     let count = 0;
 
-    workoutData.forEach(workout => {
-      workout.exercises.forEach(exercise => {
+    workoutData.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
         if (exercise.exercise === exerciseName) {
-          exercise.sets.forEach(set => {
+          exercise.sets.forEach((set) => {
             totalWeight += parseFloat(set.weight);
             count += 1;
           });
@@ -120,10 +147,10 @@ const Statistics = () => {
   const calculateTotalReps = (exerciseName: string) => {
     let totalReps = 0;
 
-    workoutData.forEach(workout => {
-      workout.exercises.forEach(exercise => {
+    workoutData.forEach((workout) => {
+      workout.exercises.forEach((exercise) => {
         if (exercise.exercise === exerciseName) {
-          exercise.sets.forEach(set => {
+          exercise.sets.forEach((set) => {
             totalReps += parseFloat(set.reps);
           });
         }
@@ -134,8 +161,9 @@ const Statistics = () => {
   };
 
   const calculateWorkoutDurations = () => {
-    return workoutData.map(workout => {
-      const duration = (workout.endTime.getTime() - workout.startTime.getTime()) / (1000 * 60); // duration in minutes
+    return workoutData.map((workout) => {
+      const duration =
+        (workout.endTime.getTime() - workout.startTime.getTime()) / (1000 * 60); // duration in minutes
       return duration;
     });
   };
@@ -161,13 +189,18 @@ const Statistics = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Statistics</Text>
 
-      <TouchableOpacity onPress={() => toggleSection('measurementStats')} style={styles.sectionHeader}>
+      <TouchableOpacity
+        onPress={() => toggleSection('measurementStats')}
+        style={styles.sectionHeader}
+      >
         <Text style={styles.sectionHeaderText}>Measurement Statistics</Text>
       </TouchableOpacity>
       <Collapsible collapsed={!activeSections.measurementStats}>
         {Object.keys(measurementData).map((key, index) => (
           <View key={index}>
-            <Text style={styles.chartTitle}>{key} ({key === 'Weight' ? 'kg' : 'cm'})</Text>
+            <Text style={styles.chartTitle}>
+              {key} ({key === 'Weight' ? 'kg' : 'cm'})
+            </Text>
             <LineChart
               data={{
                 labels: dates,
@@ -187,13 +220,18 @@ const Statistics = () => {
         ))}
       </Collapsible>
 
-      <TouchableOpacity onPress={() => toggleSection('workoutStats')} style={styles.sectionHeader}>
+      <TouchableOpacity
+        onPress={() => toggleSection('workoutStats')}
+        style={styles.sectionHeader}
+      >
         <Text style={styles.sectionHeaderText}>Workout Durations</Text>
       </TouchableOpacity>
       <Collapsible collapsed={!activeSections.workoutStats}>
         <BarChart
           data={{
-            labels: workoutData.map(workout => new Date(workout.startTime).toLocaleDateString()),
+            labels: workoutData.map((workout) =>
+              new Date(workout.startTime).toLocaleDateString()
+            ),
             datasets: [
               {
                 data: calculateWorkoutDurations(),
@@ -209,16 +247,31 @@ const Statistics = () => {
         />
       </Collapsible>
 
-      <TouchableOpacity onPress={() => toggleSection('exerciseStats')} style={styles.sectionHeader}>
+      <TouchableOpacity
+        onPress={() => toggleSection('exerciseStats')}
+        style={styles.sectionHeader}
+      >
         <Text style={styles.sectionHeaderText}>Exercise Statistics</Text>
       </TouchableOpacity>
       <Collapsible collapsed={!activeSections.exerciseStats}>
-        {Array.from(new Set(workoutData.flatMap(workout => workout.exercises.map(ex => ex.exercise)))).map((exerciseName, index) => (
+        {Array.from(
+          new Set(
+            workoutData.flatMap((workout) =>
+              workout.exercises.map((ex) => ex.exercise)
+            )
+          )
+        ).map((exerciseName, index) => (
           <View key={index}>
-            <Text style={styles.chartTitle}>{exerciseName} - Average Weight (kg)</Text>
-            <Text style={styles.chartValue}>{calculateAverageWeight(exerciseName).toFixed(2)} kg</Text>
+            <Text style={styles.chartTitle}>
+              {exerciseName} - Average Weight (kg)
+            </Text>
+            <Text style={styles.chartValue}>
+              {calculateAverageWeight(exerciseName).toFixed(2)} kg
+            </Text>
             <Text style={styles.chartTitle}>{exerciseName} - Total Reps</Text>
-            <Text style={styles.chartValue}>{calculateTotalReps(exerciseName)}</Text>
+            <Text style={styles.chartValue}>
+              {calculateTotalReps(exerciseName)}
+            </Text>
           </View>
         ))}
       </Collapsible>

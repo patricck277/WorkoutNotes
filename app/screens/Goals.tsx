@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+} from 'react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { collection, getDocs, addDoc, query, where, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  addDoc,
+  query,
+  where,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 
 type Goal = {
   id: string;
@@ -20,10 +36,13 @@ const Goals = () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (!userUid) return;
 
-    const userGoalsQuery = query(collection(FIRESTORE_DB, 'userGoals'), where('userId', '==', userUid));
+    const userGoalsQuery = query(
+      collection(FIRESTORE_DB, 'userGoals'),
+      where('userId', '==', userUid)
+    );
     const userGoalsSnapshot = await getDocs(userGoalsQuery);
 
-    const goalIds = userGoalsSnapshot.docs.map(doc => doc.data().goalId);
+    const goalIds = userGoalsSnapshot.docs.map((doc) => doc.data().goalId);
     const fetchedGoals: Goal[] = [];
 
     for (const goalId of goalIds) {
@@ -56,7 +75,15 @@ const Goals = () => {
         goalId: goalDoc.id,
       });
 
-      setGoals([...goals, { id: goalDoc.id, name: goalName, description: goalDescription, targetDate: goalTargetDate }]);
+      setGoals([
+        ...goals,
+        {
+          id: goalDoc.id,
+          name: goalName,
+          description: goalDescription,
+          targetDate: goalTargetDate,
+        },
+      ]);
       setGoalName('');
       setGoalDescription('');
       setGoalTargetDate('');
@@ -80,7 +107,7 @@ const Goals = () => {
         <FlatList
           data={goals}
           renderItem={renderGoal}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           style={styles.goalList}
           contentContainerStyle={styles.goalListContent}
         />

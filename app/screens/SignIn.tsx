@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  StatusBar,
+} from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
-import { signInWithEmailAndPassword, FacebookAuthProvider, signInWithCredential } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  FacebookAuthProvider,
+  signInWithCredential,
+} from 'firebase/auth';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import { RootStackParamList } from '../../App';
 
@@ -16,19 +28,21 @@ const SignIn = () => {
 
   const [request, response, promptAsync] = Facebook.useAuthRequest({
     clientId: '1118471739446165',
-    redirectUri: 'https://workout-notes-7a343.firebaseapp.com/__/auth/handler'
+    redirectUri: 'https://workout-notes-7a343.firebaseapp.com/__/auth/handler',
   });
 
   useEffect(() => {
     if (response?.type === 'success') {
       const { authentication } = response;
       if (authentication) {
-        const credential = FacebookAuthProvider.credential(authentication.accessToken);
+        const credential = FacebookAuthProvider.credential(
+          authentication.accessToken
+        );
         signInWithCredential(FIREBASE_AUTH, credential)
-          .then(userCredential => {
+          .then((userCredential) => {
             navigation.navigate('Main' as never);
           })
-          .catch(error => {
+          .catch((error) => {
             console.error(error);
             setErrorMessage('Error signing in with Facebook.');
           });
@@ -38,10 +52,10 @@ const SignIn = () => {
 
   const handleSignIn = () => {
     signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
-      .then(userCredential => {
+      .then((userCredential) => {
         navigation.navigate('Main' as never);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         setErrorMessage('Invalid email or password.');
       });
@@ -51,10 +65,15 @@ const SignIn = () => {
     <View style={styles.background}>
       <StatusBar barStyle="light-content" />
       <View style={styles.container}>
-        <Image source={require('../../assets/WorkoutNotes_Logo.png')} style={styles.logo} />
+        <Image
+          source={require('../../assets/WorkoutNotes_Logo.png')}
+          style={styles.logo}
+        />
         <Text style={styles.title}>Workout Notes</Text>
         <Text style={styles.subtitle}>Sign in to continue</Text>
-        {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+        {errorMessage ? (
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        ) : null}
         <TextInput
           placeholder="Email"
           value={email}
@@ -73,14 +92,21 @@ const SignIn = () => {
         <TouchableOpacity style={styles.button} onPress={handleSignIn}>
           <Text style={styles.buttonText}>Sign In</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.facebookButton]} onPress={() => promptAsync()}>
+        <TouchableOpacity
+          style={[styles.button, styles.facebookButton]}
+          onPress={() => promptAsync()}
+        >
           <Image
-            source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg' }}
+            source={{
+              uri: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg',
+            }}
             style={styles.facebookIcon}
           />
           <Text style={styles.buttonText}>Sign In with Facebook</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp' as never)}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SignUp' as never)}
+        >
           <Text style={styles.link}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>

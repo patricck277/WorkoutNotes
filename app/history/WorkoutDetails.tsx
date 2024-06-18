@@ -5,7 +5,10 @@ import { FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 
-type WorkoutDetailsScreenRouteProp = RouteProp<RootStackParamList, 'WorkoutDetails'>;
+type WorkoutDetailsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'WorkoutDetails'
+>;
 
 type Props = {
   route: WorkoutDetailsScreenRouteProp;

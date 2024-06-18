@@ -1,12 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, FlatList, SafeAreaView } from 'react-native';
-import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  FlatList,
+  SafeAreaView,
+} from 'react-native';
+import {
+  useNavigation,
+  NavigationProp,
+  RouteProp,
+  useRoute,
+} from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { RootStackParamList, MeasurementData } from '../../App';
 
-type ProfileScreenNavigationProp = NavigationProp<RootStackParamList, 'Profile'>;
+type ProfileScreenNavigationProp = NavigationProp<
+  RootStackParamList,
+  'Profile'
+>;
 type ProfileScreenRouteProp = RouteProp<RootStackParamList, 'Profile'>;
 
 type Measurement = {
@@ -15,7 +31,9 @@ type Measurement = {
 };
 
 const Profile = () => {
-  const [measurements, setMeasurements] = useState<MeasurementData | null>(null);
+  const [measurements, setMeasurements] = useState<MeasurementData | null>(
+    null
+  );
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const route = useRoute<ProfileScreenRouteProp>();
 
@@ -56,7 +74,7 @@ const Profile = () => {
       .then(() => {
         navigation.navigate('SignIn');
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   };
@@ -68,7 +86,9 @@ const Profile = () => {
     }
     return (
       <View style={styles.measurementContainer}>
-        <Text style={styles.measurementText}>{item.name}: {item.value} {unit}</Text>
+        <Text style={styles.measurementText}>
+          {item.name}: {item.value} {unit}
+        </Text>
       </View>
     );
   };
@@ -79,27 +99,43 @@ const Profile = () => {
       <View style={styles.container}>
         {measurements ? (
           <>
-            <Text style={styles.dateText}>Measurements from: {measurements.date}</Text>
+            <Text style={styles.dateText}>
+              Measurements from: {measurements.date}
+            </Text>
             <FlatList
               data={measurements.measurements}
               renderItem={renderMeasurement}
-              keyExtractor={item => item.name}
+              keyExtractor={(item) => item.name}
               style={styles.measurementList}
               contentContainerStyle={styles.measurementListContent}
             />
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateMeasurements')}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('UpdateMeasurements')}
+            >
               <Text style={styles.buttonText}>New Measurements</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('EditMeasurements', { measurements })}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                navigation.navigate('EditMeasurements', { measurements })
+              }
+            >
               <Text style={styles.buttonText}>Edit Measurements</Text>
             </TouchableOpacity>
           </>
         ) : (
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UpdateMeasurements')}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('UpdateMeasurements')}
+          >
             <Text style={styles.buttonText}>Update Measurements</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={[styles.button, styles.signOutButton]} onPress={handleSignOut}>
+        <TouchableOpacity
+          style={[styles.button, styles.signOutButton]}
+          onPress={handleSignOut}
+        >
           <Text style={styles.buttonText}>Sign Out</Text>
         </TouchableOpacity>
       </View>

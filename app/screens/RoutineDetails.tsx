@@ -1,11 +1,27 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Alert, FlatList } from 'react-native';
-import { useNavigation, RouteProp, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  Alert,
+  FlatList,
+} from 'react-native';
+import {
+  useNavigation,
+  RouteProp,
+  NavigationProp,
+  useFocusEffect,
+} from '@react-navigation/native';
 import { FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 
-type RoutineDetailsScreenRouteProp = RouteProp<RootStackParamList, 'RoutineDetails'>;
+type RoutineDetailsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'RoutineDetails'
+>;
 
 type Props = {
   route: RoutineDetailsScreenRouteProp;
@@ -71,13 +87,24 @@ const RoutineDetails = ({ route }: Props) => {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.exerciseList}
       />
-      <TouchableOpacity style={styles.startButton} onPress={() => navigation.navigate('StartWorkout', { routineId, autoStart: true })}>
+      <TouchableOpacity
+        style={styles.startButton}
+        onPress={() =>
+          navigation.navigate('StartWorkout', { routineId, autoStart: true })
+        }
+      >
         <Text style={styles.startButtonText}>Start Workout</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditRoutine', { routineId })}>
+      <TouchableOpacity
+        style={styles.editButton}
+        onPress={() => navigation.navigate('EditRoutine', { routineId })}
+      >
         <Text style={styles.editButtonText}>Edit Routine</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteRoutine}>
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={handleDeleteRoutine}
+      >
         <Text style={styles.deleteButtonText}>Delete Routine</Text>
       </TouchableOpacity>
     </View>

@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, ScrollView } from 'react-native';
-import { useNavigation, RouteProp, NavigationProp } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  ScrollView,
+} from 'react-native';
+import {
+  useNavigation,
+  RouteProp,
+  NavigationProp,
+} from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+} from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 import { ExerciseItem, basicExercises } from '../exercises/basicExercises';
 import { Picker } from '@react-native-picker/picker';
@@ -17,7 +34,9 @@ const EditRoutine = ({ route }: Props) => {
   const { routineId } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [routine, setRoutine] = useState<any>(null);
-  const [selectedExercise, setSelectedExercise] = useState<string | undefined>();
+  const [selectedExercise, setSelectedExercise] = useState<
+    string | undefined
+  >();
   const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
 
   useEffect(() => {
@@ -32,8 +51,10 @@ const EditRoutine = ({ route }: Props) => {
     const fetchExercises = async () => {
       const userUid = FIREBASE_AUTH.currentUser?.uid;
       const fetchedExercises: ExerciseItem[] = [...basicExercises];
-      const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
-      querySnapshot.forEach(doc => {
+      const querySnapshot = await getDocs(
+        collection(FIRESTORE_DB, 'exercises')
+      );
+      querySnapshot.forEach((doc) => {
         const data = doc.data() as ExerciseItem;
         if (data.userId === userUid) {
           fetchedExercises.push({ id: doc.id, name: data.name });
@@ -51,7 +72,10 @@ const EditRoutine = ({ route }: Props) => {
 
   const handleAddExercise = () => {
     if (selectedExercise && routine) {
-      const updatedRoutine = { ...routine, exercises: [...routine.exercises, selectedExercise] };
+      const updatedRoutine = {
+        ...routine,
+        exercises: [...routine.exercises, selectedExercise],
+      };
       setRoutine(updatedRoutine);
       setSelectedExercise(undefined);
     }
@@ -59,7 +83,9 @@ const EditRoutine = ({ route }: Props) => {
 
   const handleRemoveExercise = (exerciseToRemove: string) => {
     if (routine) {
-      const updatedExercises = routine.exercises.filter((exercise: string) => exercise !== exerciseToRemove);
+      const updatedExercises = routine.exercises.filter(
+        (exercise: string) => exercise !== exerciseToRemove
+      );
       setRoutine({ ...routine, exercises: updatedExercises });
     }
   };
@@ -91,8 +117,12 @@ const EditRoutine = ({ route }: Props) => {
         onValueChange={(itemValue: string) => setSelectedExercise(itemValue)}
         style={styles.picker}
       >
-        {allExercises.map(exercise => (
-          <Picker.Item key={exercise.id} label={exercise.name} value={exercise.name} />
+        {allExercises.map((exercise) => (
+          <Picker.Item
+            key={exercise.id}
+            label={exercise.name}
+            value={exercise.name}
+          />
         ))}
       </Picker>
       <TouchableOpacity style={styles.addButton} onPress={handleAddExercise}>

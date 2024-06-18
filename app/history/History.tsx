@@ -1,11 +1,32 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
-import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+} from 'react-native';
+import {
+  useNavigation,
+  NavigationProp,
+  useFocusEffect,
+} from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 import { RootStackParamList } from '../../App';
 
-type HistoryScreenNavigationProp = NavigationProp<RootStackParamList, 'History'>;
+type HistoryScreenNavigationProp = NavigationProp<
+  RootStackParamList,
+  'History'
+>;
 
 type WorkoutItem = {
   id: string;
@@ -23,13 +44,18 @@ const History = () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (!userUid) return;
 
-    const q = query(collection(FIRESTORE_DB, 'workouts'), where('userId', '==', userUid));
+    const q = query(
+      collection(FIRESTORE_DB, 'workouts'),
+      where('userId', '==', userUid)
+    );
     const querySnapshot = await getDocs(q);
     const fetchedWorkouts: WorkoutItem[] = [];
 
     for (const docSnapshot of querySnapshot.docs) {
       const data = docSnapshot.data();
-      const routineDoc = await getDoc(doc(FIRESTORE_DB, 'routines', data.routineId));
+      const routineDoc = await getDoc(
+        doc(FIRESTORE_DB, 'routines', data.routineId)
+      );
       const routineData = routineDoc.data();
 
       if (routineData) {
@@ -55,10 +81,14 @@ const History = () => {
   const renderWorkout = ({ item }: { item: WorkoutItem }) => (
     <TouchableOpacity
       style={styles.workoutContainer}
-      onPress={() => navigation.navigate('WorkoutDetails', { workoutId: item.id })}
+      onPress={() =>
+        navigation.navigate('WorkoutDetails', { workoutId: item.id })
+      }
     >
       <Text style={styles.workoutText}>Routine: {item.routineName}</Text>
-      <Text style={styles.workoutText}>Date: {new Date(item.startTime).toLocaleString()}</Text>
+      <Text style={styles.workoutText}>
+        Date: {new Date(item.startTime).toLocaleString()}
+      </Text>
     </TouchableOpacity>
   );
 
@@ -68,10 +98,13 @@ const History = () => {
       <FlatList
         data={workouts}
         renderItem={renderWorkout}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.workoutList}
       />
-      <TouchableOpacity style={styles.calendarButton} onPress={() => navigation.navigate('Calendar')}>
+      <TouchableOpacity
+        style={styles.calendarButton}
+        onPress={() => navigation.navigate('Calendar')}
+      >
         <Text style={styles.calendarButtonText}>Open Calendar</Text>
       </TouchableOpacity>
     </View>

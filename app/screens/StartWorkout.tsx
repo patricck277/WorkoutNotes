@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, TextInput, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  TextInput,
+  Alert,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useNavigation, RouteProp } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -7,7 +18,10 @@ import { RootStackParamList } from '../../App';
 import { ExerciseItem, basicExercises } from '../exercises/basicExercises';
 import { Picker } from '@react-native-picker/picker';
 
-type StartWorkoutScreenRouteProp = RouteProp<RootStackParamList, 'StartWorkout'>;
+type StartWorkoutScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'StartWorkout'
+>;
 
 type Props = {
   route: StartWorkoutScreenRouteProp;
@@ -34,20 +48,30 @@ type WorkoutData = {
 const StartWorkout = ({ route }: Props) => {
   const { routineId, autoStart } = route.params;
   const [isWorkoutStarted, setIsWorkoutStarted] = useState(autoStart);
-  const [workoutData, setWorkoutData] = useState<WorkoutData>({ exercises: [], startTime: null, endTime: null });
+  const [workoutData, setWorkoutData] = useState<WorkoutData>({
+    exercises: [],
+    startTime: null,
+    endTime: null,
+  });
   const [currentExercise, setCurrentExercise] = useState<string | undefined>();
   const [setData, setSetData] = useState<SetData[]>([]);
-  const [selectedExercise, setSelectedExercise] = useState<string | undefined>();
+  const [selectedExercise, setSelectedExercise] = useState<
+    string | undefined
+  >();
   const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
   const [currentSetNumber, setCurrentSetNumber] = useState(1);
-  const [completedExercises, setCompletedExercises] = useState<ExerciseData[]>([]);
+  const [completedExercises, setCompletedExercises] = useState<ExerciseData[]>(
+    []
+  );
   const navigation = useNavigation();
 
   useEffect(() => {
     const fetchExercises = async () => {
       const userUid = FIREBASE_AUTH.currentUser?.uid;
       const fetchedExercises: ExerciseItem[] = [...basicExercises];
-      const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
+      const querySnapshot = await getDocs(
+        collection(FIRESTORE_DB, 'exercises')
+      );
       querySnapshot.forEach((doc) => {
         const data = doc.data() as ExerciseItem;
         if (data.userId === userUid) {
@@ -59,7 +83,9 @@ const StartWorkout = ({ route }: Props) => {
       if (docSnap.exists()) {
         const routineData = docSnap.data();
         const routineExercises = routineData.exercises;
-        const filteredExercises = fetchedExercises.filter(exercise => routineExercises.includes(exercise.name));
+        const filteredExercises = fetchedExercises.filter((exercise) =>
+          routineExercises.includes(exercise.name)
+        );
         setAllExercises(filteredExercises);
         if (filteredExercises.length > 0) {
           setSelectedExercise(filteredExercises[0].name); // dfault to first exercise
@@ -91,10 +117,13 @@ const StartWorkout = ({ route }: Props) => {
   };
 
   const handleEndExercise = () => {
-    const newExercise: ExerciseData = { exercise: currentExercise!, sets: setData };
-    setWorkoutData(prevData => ({
+    const newExercise: ExerciseData = {
+      exercise: currentExercise!,
+      sets: setData,
+    };
+    setWorkoutData((prevData) => ({
       ...prevData,
-      exercises: [...prevData.exercises, newExercise]
+      exercises: [...prevData.exercises, newExercise],
     }));
     setCompletedExercises([...completedExercises, newExercise]);
     setSetData([]);
@@ -116,7 +145,10 @@ const StartWorkout = ({ route }: Props) => {
             const userUid = FIREBASE_AUTH.currentUser?.uid;
             if (!userUid) return; // Ensure the user is logged in
 
-            setWorkoutData(prevWorkoutData => ({ ...prevWorkoutData, endTime }));
+            setWorkoutData((prevWorkoutData) => ({
+              ...prevWorkoutData,
+              endTime,
+            }));
 
             try {
               await addDoc(collection(FIRESTORE_DB, 'workouts'), {
@@ -135,7 +167,11 @@ const StartWorkout = ({ route }: Props) => {
     );
   };
 
-  const handleSetChange = (index: number, field: keyof SetData, value: string) => {
+  const handleSetChange = (
+    index: number,
+    field: keyof SetData,
+    value: string
+  ) => {
     const updatedSets = [...setData];
     (updatedSets[index][field] as string) = value;
     setSetData(updatedSets);
@@ -144,13 +180,16 @@ const StartWorkout = ({ route }: Props) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.background}>
         <StatusBar barStyle="light-content" />
         <Text style={styles.title}>Workout</Text>
         {!isWorkoutStarted ? (
-          <TouchableOpacity style={styles.startButton} onPress={handleStartWorkout}>
+          <TouchableOpacity
+            style={styles.startButton}
+            onPress={handleStartWorkout}
+          >
             <Text style={styles.startButtonText}>Start Workout</Text>
           </TouchableOpacity>
         ) : (
@@ -160,11 +199,17 @@ const StartWorkout = ({ route }: Props) => {
                 <Text style={styles.labelText}>Select Exercise:</Text>
                 <Picker
                   selectedValue={selectedExercise}
-                  onValueChange={(itemValue: string) => setSelectedExercise(itemValue)}
+                  onValueChange={(itemValue: string) =>
+                    setSelectedExercise(itemValue)
+                  }
                   style={styles.picker}
                 >
-                  {allExercises.map(exercise => (
-                    <Picker.Item key={exercise.id} label={exercise.name} value={exercise.name} />
+                  {allExercises.map((exercise) => (
+                    <Picker.Item
+                      key={exercise.id}
+                      label={exercise.name}
+                      value={exercise.name}
+                    />
                   ))}
                 </Picker>
                 <TouchableOpacity
@@ -174,7 +219,9 @@ const StartWorkout = ({ route }: Props) => {
                     setSelectedExercise(undefined);
                   }}
                 >
-                  <Text style={styles.startExerciseButtonText}>Start Exercise</Text>
+                  <Text style={styles.startExerciseButtonText}>
+                    Start Exercise
+                  </Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -188,7 +235,9 @@ const StartWorkout = ({ route }: Props) => {
                       placeholder="Weight"
                       placeholderTextColor="#999"
                       value={item.weight}
-                      onChangeText={(text) => handleSetChange(index, 'weight', text)}
+                      onChangeText={(text) =>
+                        handleSetChange(index, 'weight', text)
+                      }
                       keyboardType="numeric"
                     />
                     <TextInput
@@ -196,7 +245,9 @@ const StartWorkout = ({ route }: Props) => {
                       placeholder="Reps"
                       placeholderTextColor="#999"
                       value={item.reps}
-                      onChangeText={(text) => handleSetChange(index, 'reps', text)}
+                      onChangeText={(text) =>
+                        handleSetChange(index, 'reps', text)
+                      }
                       keyboardType="numeric"
                     />
                     <TextInput
@@ -204,24 +255,37 @@ const StartWorkout = ({ route }: Props) => {
                       placeholder="Comment"
                       placeholderTextColor="#999"
                       value={item.comment}
-                      onChangeText={(text) => handleSetChange(index, 'comment', text)}
+                      onChangeText={(text) =>
+                        handleSetChange(index, 'comment', text)
+                      }
                     />
                   </View>
                 ))}
-                <TouchableOpacity style={styles.addButton} onPress={handleAddSet}>
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={handleAddSet}
+                >
                   <Text style={styles.addButtonText}>Add Set</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.endExerciseButton} onPress={handleEndExercise}>
+                <TouchableOpacity
+                  style={styles.endExerciseButton}
+                  onPress={handleEndExercise}
+                >
                   <Text style={styles.endExerciseButtonText}>End Exercise</Text>
                 </TouchableOpacity>
               </>
             )}
-            <TouchableOpacity style={styles.endButton} onPress={handleEndWorkout}>
+            <TouchableOpacity
+              style={styles.endButton}
+              onPress={handleEndWorkout}
+            >
               <Text style={styles.endButtonText}>End Workout</Text>
             </TouchableOpacity>
             {completedExercises.length > 0 && (
               <View style={styles.completedExercisesContainer}>
-                <Text style={styles.completedExercisesTitle}>Completed Exercises:</Text>
+                <Text style={styles.completedExercisesTitle}>
+                  Completed Exercises:
+                </Text>
                 {completedExercises.map((exercise, index) => (
                   <Text key={index} style={styles.completedExerciseText}>
                     {exercise.exercise}: {exercise.sets.length} sets

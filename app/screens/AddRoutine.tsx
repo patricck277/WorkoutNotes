@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
@@ -8,14 +17,19 @@ import { Picker } from '@react-native-picker/picker';
 import { ExerciseItem, basicExercises } from '../exercises/basicExercises';
 import { MaterialIcons } from '@expo/vector-icons';
 
-type AddRoutineScreenNavigationProp = NavigationProp<RootStackParamList, 'AddRoutine'>;
+type AddRoutineScreenNavigationProp = NavigationProp<
+  RootStackParamList,
+  'AddRoutine'
+>;
 
 const AddRoutine = () => {
   const [routineName, setRoutineName] = useState('');
   const [label, setLabel] = useState('Mon'); // Default to first label
   const [labelColor, setLabelColor] = useState('#007bff'); // Default color
   const [exercises, setExercises] = useState<string[]>([]);
-  const [selectedExercise, setSelectedExercise] = useState<string | undefined>(undefined);
+  const [selectedExercise, setSelectedExercise] = useState<string | undefined>(
+    undefined
+  );
   const [allExercises, setAllExercises] = useState<ExerciseItem[]>([]);
   const navigation = useNavigation<AddRoutineScreenNavigationProp>();
 
@@ -25,9 +39,11 @@ const AddRoutine = () => {
       if (!userUid) return;
 
       const fetchedExercises: ExerciseItem[] = [...basicExercises];
-      const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
+      const querySnapshot = await getDocs(
+        collection(FIRESTORE_DB, 'exercises')
+      );
 
-      querySnapshot.forEach(doc => {
+      querySnapshot.forEach((doc) => {
         const data = doc.data() as ExerciseItem;
         if (data.userId === userUid) {
           fetchedExercises.push({ id: doc.id, name: data.name });
@@ -51,7 +67,10 @@ const AddRoutine = () => {
 
   const handleAddRoutine = async () => {
     if (routineName.length < 4) {
-      Alert.alert('Validation Error', 'Routine Name must be at least 4 characters long.');
+      Alert.alert(
+        'Validation Error',
+        'Routine Name must be at least 4 characters long.'
+      );
       return;
     }
 
@@ -102,7 +121,7 @@ const AddRoutine = () => {
       </Picker>
       <Text style={styles.labelText}>Select Label Color:</Text>
       <View style={styles.colorContainer}>
-        {colors.map(color => (
+        {colors.map((color) => (
           <TouchableOpacity
             key={color}
             style={[styles.colorButton, { backgroundColor: color }]}
@@ -117,11 +136,17 @@ const AddRoutine = () => {
       <Text style={styles.labelText}>Select Exercise:</Text>
       <Picker
         selectedValue={selectedExercise}
-        onValueChange={(itemValue: string) => setSelectedExercise(itemValue || undefined)}
+        onValueChange={(itemValue: string) =>
+          setSelectedExercise(itemValue || undefined)
+        }
         style={styles.picker}
       >
-        {allExercises.map(exercise => (
-          <Picker.Item key={exercise.id} label={exercise.name} value={exercise.name} />
+        {allExercises.map((exercise) => (
+          <Picker.Item
+            key={exercise.id}
+            label={exercise.name}
+            value={exercise.name}
+          />
         ))}
       </Picker>
       <TouchableOpacity style={styles.addButton} onPress={handleAddExercise}>
@@ -131,7 +156,9 @@ const AddRoutine = () => {
         <View style={styles.exercisesContainer}>
           <Text style={styles.exercisesTitle}>Selected Exercises:</Text>
           {exercises.map((exercise, index) => (
-            <Text key={index} style={styles.exerciseText}>{exercise}</Text>
+            <Text key={index} style={styles.exerciseText}>
+              {exercise}
+            </Text>
           ))}
         </View>
       )}

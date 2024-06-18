@@ -57,7 +57,11 @@ function MyTabs() {
             component={History}
             options={{
               tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="history" size={30} color={color} />
+                <MaterialCommunityIcons
+                  name="history"
+                  size={30}
+                  color={color}
+                />
               ),
               tabBarLabel: 'History',
             }}
@@ -67,7 +71,11 @@ function MyTabs() {
             component={Exercises}
             options={{
               tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="dumbbell" size={30} color={color} />
+                <MaterialCommunityIcons
+                  name="dumbbell"
+                  size={30}
+                  color={color}
+                />
               ),
               tabBarLabel: 'Exercise',
             }}
@@ -87,7 +95,11 @@ function MyTabs() {
             component={Profile}
             options={{
               tabBarIcon: ({ color, size }) => (
-                <MaterialCommunityIcons name="account" size={30} color={color} />
+                <MaterialCommunityIcons
+                  name="account"
+                  size={30}
+                  color={color}
+                />
               ),
               tabBarLabel: 'Profile',
             }}

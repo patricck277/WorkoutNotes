@@ -1,6 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, StatusBar, TouchableOpacity, Image } from 'react-native';
-import { useFocusEffect, NavigationProp, useNavigation } from '@react-navigation/native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  StatusBar,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import {
+  useFocusEffect,
+  NavigationProp,
+  useNavigation,
+} from '@react-navigation/native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { ExerciseItem, basicExercises } from '../exercises/basicExercises';
@@ -15,14 +27,11 @@ const Exercises = () => {
       const exerciseCollection = collection(FIRESTORE_DB, 'exercises');
       const userUid = FIREBASE_AUTH.currentUser?.uid;
 
-      const q = query(
-        exerciseCollection,
-        where('userId', '==', userUid)
-      );
+      const q = query(exerciseCollection, where('userId', '==', userUid));
 
       const querySnapshot = await getDocs(q);
       const fetchedExercises: ExerciseItem[] = [];
-      querySnapshot.forEach(doc => {
+      querySnapshot.forEach((doc) => {
         fetchedExercises.push({ id: doc.id, ...doc.data() } as ExerciseItem);
       });
 
@@ -42,16 +51,20 @@ const Exercises = () => {
   const renderExercise = ({ item }: { item: ExerciseItem }) => (
     <TouchableOpacity
       style={styles.exerciseContainer}
-      onPress={() => navigation.navigate('ExerciseDetails', {
-        name: item.name,
-        description: item.description,
-        imageUrl: item.imageUrl,
-        id: item.id
-      })}
+      onPress={() =>
+        navigation.navigate('ExerciseDetails', {
+          name: item.name,
+          description: item.description,
+          imageUrl: item.imageUrl,
+          id: item.id,
+        })
+      }
     >
       <View style={styles.exerciseContent}>
         <Text style={styles.exerciseName}>{item.name}</Text>
-        {item.imageUrl && <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />}
+        {item.imageUrl && (
+          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -62,7 +75,7 @@ const Exercises = () => {
       <FlatList
         data={exercises}
         renderItem={renderExercise}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.exerciseList}
       />
       <TouchableOpacity

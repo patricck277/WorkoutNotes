@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  Alert,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList, MeasurementData } from '../../App';
 
-type UpdateMeasurementsScreenNavigationProp = NavigationProp<RootStackParamList, 'UpdateMeasurements'>;
+type UpdateMeasurementsScreenNavigationProp = NavigationProp<
+  RootStackParamList,
+  'UpdateMeasurements'
+>;
 
 const UpdateMeasurements = () => {
   const [newMeasurements, setNewMeasurements] = useState([
@@ -24,8 +35,15 @@ const UpdateMeasurements = () => {
   const handleSaveMeasurements = async () => {
     // Validate measurements
     for (let measurement of newMeasurements) {
-      if (!measurement.value || isNaN(Number(measurement.value)) || Number(measurement.value) <= 0) {
-        Alert.alert('Invalid input', `Please enter a valid value for ${measurement.name} in ${measurement.unit}.`);
+      if (
+        !measurement.value ||
+        isNaN(Number(measurement.value)) ||
+        Number(measurement.value) <= 0
+      ) {
+        Alert.alert(
+          'Invalid input',
+          `Please enter a valid value for ${measurement.name} in ${measurement.unit}.`
+        );
         return;
       }
     }
@@ -38,10 +56,16 @@ const UpdateMeasurements = () => {
 
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (userUid) {
-      await addDoc(collection(FIRESTORE_DB, 'users', userUid, 'measurements'), newMeasurementData);
+      await addDoc(
+        collection(FIRESTORE_DB, 'users', userUid, 'measurements'),
+        newMeasurementData
+      );
     }
 
-    navigation.navigate('Main', { screen: 'Profile', params: { updatedMeasurements: newMeasurementData } } as any);
+    navigation.navigate('Main', {
+      screen: 'Profile',
+      params: { updatedMeasurements: newMeasurementData },
+    } as any);
   };
 
   return (
@@ -54,7 +78,9 @@ const UpdateMeasurements = () => {
       <StatusBar barStyle="light-content" />
       {newMeasurements.map((measurement, index) => (
         <View key={measurement.name} style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>{measurement.name} ({measurement.unit})</Text>
+          <Text style={styles.inputLabel}>
+            {measurement.name} ({measurement.unit})
+          </Text>
           <TextInput
             style={styles.input}
             value={measurement.value}
@@ -69,7 +95,10 @@ const UpdateMeasurements = () => {
           />
         </View>
       ))}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeasurements}>
+      <TouchableOpacity
+        style={styles.saveButton}
+        onPress={handleSaveMeasurements}
+      >
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
     </KeyboardAwareScrollView>

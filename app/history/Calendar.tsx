@@ -19,10 +19,13 @@ const CalendarScreen = () => {
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (!userUid) return;
 
-    const q = query(collection(FIRESTORE_DB, 'workouts'), where('userId', '==', userUid));
+    const q = query(
+      collection(FIRESTORE_DB, 'workouts'),
+      where('userId', '==', userUid)
+    );
     const querySnapshot = await getDocs(q);
     const fetchedWorkouts: WorkoutItem[] = [];
-    querySnapshot.forEach(doc => {
+    querySnapshot.forEach((doc) => {
       const data = doc.data();
       fetchedWorkouts.push({
         id: doc.id,
@@ -32,22 +35,25 @@ const CalendarScreen = () => {
       });
     });
 
-    const dates = fetchedWorkouts.reduce((acc: { [key: string]: any }, workout) => {
-      const date = workout.startTime.split('T')[0];
-      acc[date] = {
-        customStyles: {
-          container: {
-            backgroundColor: 'red',
-            borderRadius: 15,
+    const dates = fetchedWorkouts.reduce(
+      (acc: { [key: string]: any }, workout) => {
+        const date = workout.startTime.split('T')[0];
+        acc[date] = {
+          customStyles: {
+            container: {
+              backgroundColor: 'red',
+              borderRadius: 15,
+            },
+            text: {
+              color: 'white',
+              fontWeight: 'bold',
+            },
           },
-          text: {
-            color: 'white',
-            fontWeight: 'bold',
-          },
-        },
-      };
-      return acc;
-    }, {});
+        };
+        return acc;
+      },
+      {}
+    );
 
     setMarkedDates(dates);
   };

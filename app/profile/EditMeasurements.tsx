@@ -1,18 +1,39 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
-import { useNavigation, NavigationProp, RouteProp, useRoute } from '@react-navigation/native';
+import {
+  useNavigation,
+  NavigationProp,
+  RouteProp,
+  useRoute,
+} from '@react-navigation/native';
 import { RootStackParamList, MeasurementData } from '../../App';
 
-type EditMeasurementsScreenNavigationProp = NavigationProp<RootStackParamList, 'EditMeasurements'>;
-type EditMeasurementsScreenRouteProp = RouteProp<RootStackParamList, 'EditMeasurements'>;
+type EditMeasurementsScreenNavigationProp = NavigationProp<
+  RootStackParamList,
+  'EditMeasurements'
+>;
+type EditMeasurementsScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'EditMeasurements'
+>;
 
 const EditMeasurements = () => {
   const route = useRoute<EditMeasurementsScreenRouteProp>();
   const { measurements } = route.params;
-  const [editedMeasurements, setEditedMeasurements] = useState(measurements.measurements);
+  const [editedMeasurements, setEditedMeasurements] = useState(
+    measurements.measurements
+  );
   const navigation = useNavigation<EditMeasurementsScreenNavigationProp>();
 
   const handleSaveMeasurements = async () => {
@@ -24,10 +45,16 @@ const EditMeasurements = () => {
 
     const userUid = FIREBASE_AUTH.currentUser?.uid;
     if (userUid) {
-      await addDoc(collection(FIRESTORE_DB, 'users', userUid, 'measurements'), newMeasurementData);
+      await addDoc(
+        collection(FIRESTORE_DB, 'users', userUid, 'measurements'),
+        newMeasurementData
+      );
     }
 
-    navigation.navigate('Main', { screen: 'Profile', params: { updatedMeasurements: newMeasurementData } } as any);
+    navigation.navigate('Main', {
+      screen: 'Profile',
+      params: { updatedMeasurements: newMeasurementData },
+    } as any);
   };
 
   return (
@@ -55,7 +82,10 @@ const EditMeasurements = () => {
           />
         </View>
       ))}
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeasurements}>
+      <TouchableOpacity
+        style={styles.saveButton}
+        onPress={handleSaveMeasurements}
+      >
         <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
     </KeyboardAwareScrollView>
