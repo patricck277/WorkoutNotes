@@ -30,13 +30,19 @@ const EditRoutine = ({ route }: Props) => {
     };
 
     const fetchExercises = async () => {
+      const userUid = FIREBASE_AUTH.currentUser?.uid;
       const fetchedExercises: ExerciseItem[] = [...basicExercises];
       const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
       querySnapshot.forEach(doc => {
         const data = doc.data() as ExerciseItem;
-        fetchedExercises.push({ id: doc.id, name: data.name });
+        if (data.userId === userUid) {
+          fetchedExercises.push({ id: doc.id, name: data.name });
+        }
       });
       setAllExercises(fetchedExercises);
+      if (fetchedExercises.length > 0) {
+        setSelectedExercise(fetchedExercises[0].name); // Default to first exercise
+      }
     };
 
     fetchRoutine();

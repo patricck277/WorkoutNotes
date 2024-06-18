@@ -45,21 +45,25 @@ const StartWorkout = ({ route }: Props) => {
 
   useEffect(() => {
     const fetchExercises = async () => {
+      const userUid = FIREBASE_AUTH.currentUser?.uid;
       const fetchedExercises: ExerciseItem[] = [...basicExercises];
       const querySnapshot = await getDocs(collection(FIRESTORE_DB, 'exercises'));
       querySnapshot.forEach((doc) => {
         const data = doc.data() as ExerciseItem;
-        fetchedExercises.push({ id: doc.id, name: data.name });
+        if (data.userId === userUid) {
+          fetchedExercises.push({ id: doc.id, name: data.name });
+        }
       });
-      setAllExercises(fetchedExercises);
-
       const docRef = doc(FIRESTORE_DB, 'routines', routineId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const routineData = docSnap.data();
-        setAllExercises(
-          fetchedExercises.filter(exercise => routineData.exercises.includes(exercise.name))
-        );
+        const routineExercises = routineData.exercises;
+        const filteredExercises = fetchedExercises.filter(exercise => routineExercises.includes(exercise.name));
+        setAllExercises(filteredExercises);
+        if (filteredExercises.length > 0) {
+          setSelectedExercise(filteredExercises[0].name); // dfault to first exercise
+        }
       }
     };
 

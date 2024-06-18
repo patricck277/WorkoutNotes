@@ -6,6 +6,7 @@ import Statistics from './screens/Statistics';
 import History from './history/History';
 import Exercises from './screens/Exercises';
 import Profile from './profile/Profile';
+import Goals from './screens/Goals';
 import { MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
@@ -69,6 +70,16 @@ function MyTabs() {
                 <MaterialCommunityIcons name="dumbbell" size={30} color={color} />
               ),
               tabBarLabel: 'Exercise',
+            }}
+          />
+          <Tab.Screen
+            name="Goals"
+            component={Goals}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <MaterialCommunityIcons name="target" size={30} color={color} />
+              ),
+              tabBarLabel: 'Goals',
             }}
           />
           <Tab.Screen

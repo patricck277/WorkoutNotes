@@ -55,10 +55,8 @@ const Statistics = () => {
         measurementData.push(doc.data() as MeasurementData);
       });
 
-      // Sort data by date
       measurementData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-      // Extract dates and measurements
       const dates = measurementData.map(md => md.date);
       const measurements = measurementData.reduce((acc, md) => {
         md.measurements.forEach((measurement: Measurement) => {
@@ -88,7 +86,6 @@ const Statistics = () => {
       setWorkoutData(fetchedWorkouts);
     });
 
-    // Clean up subscriptions on unmount
     return () => {
       unsubscribeMeasurements();
       unsubscribeWorkouts();
@@ -170,7 +167,7 @@ const Statistics = () => {
       <Collapsible collapsed={!activeSections.measurementStats}>
         {Object.keys(measurementData).map((key, index) => (
           <View key={index}>
-            <Text style={styles.chartTitle}>{key}</Text>
+            <Text style={styles.chartTitle}>{key} ({key === 'Weight' ? 'kg' : 'cm'})</Text>
             <LineChart
               data={{
                 labels: dates,
@@ -218,7 +215,7 @@ const Statistics = () => {
       <Collapsible collapsed={!activeSections.exerciseStats}>
         {Array.from(new Set(workoutData.flatMap(workout => workout.exercises.map(ex => ex.exercise)))).map((exerciseName, index) => (
           <View key={index}>
-            <Text style={styles.chartTitle}>{exerciseName} - Average Weight</Text>
+            <Text style={styles.chartTitle}>{exerciseName} - Average Weight (kg)</Text>
             <Text style={styles.chartValue}>{calculateAverageWeight(exerciseName).toFixed(2)} kg</Text>
             <Text style={styles.chartTitle}>{exerciseName} - Total Reps</Text>
             <Text style={styles.chartValue}>{calculateTotalReps(exerciseName)}</Text>

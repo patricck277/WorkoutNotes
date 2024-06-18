@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
@@ -10,18 +10,26 @@ type UpdateMeasurementsScreenNavigationProp = NavigationProp<RootStackParamList,
 
 const UpdateMeasurements = () => {
   const [newMeasurements, setNewMeasurements] = useState([
-    { name: 'Weight', value: '' },
-    { name: 'Chest', value: '' },
-    { name: 'Biceps (left)', value: '' },
-    { name: 'Biceps (right)', value: '' },
-    { name: 'Thigh (left)', value: '' },
-    { name: 'Thigh (right)', value: '' },
-    { name: 'Waist', value: '' },
-    { name: 'Hips', value: '' },
+    { name: 'Weight', value: '', unit: 'kg' },
+    { name: 'Chest', value: '', unit: 'cm' },
+    { name: 'Biceps (left)', value: '', unit: 'cm' },
+    { name: 'Biceps (right)', value: '', unit: 'cm' },
+    { name: 'Thigh (left)', value: '', unit: 'cm' },
+    { name: 'Thigh (right)', value: '', unit: 'cm' },
+    { name: 'Waist', value: '', unit: 'cm' },
+    { name: 'Hips', value: '', unit: 'cm' },
   ]);
   const navigation = useNavigation<UpdateMeasurementsScreenNavigationProp>();
 
   const handleSaveMeasurements = async () => {
+    // Validate measurements
+    for (let measurement of newMeasurements) {
+      if (!measurement.value || isNaN(Number(measurement.value)) || Number(measurement.value) <= 0) {
+        Alert.alert('Invalid input', `Please enter a valid value for ${measurement.name} in ${measurement.unit}.`);
+        return;
+      }
+    }
+
     const date = new Date().toISOString().split('T')[0]; // Data format YYYY-MM-DD format
     const newMeasurementData: MeasurementData = {
       date,
@@ -46,7 +54,7 @@ const UpdateMeasurements = () => {
       <StatusBar barStyle="light-content" />
       {newMeasurements.map((measurement, index) => (
         <View key={measurement.name} style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>{measurement.name}</Text>
+          <Text style={styles.inputLabel}>{measurement.name} ({measurement.unit})</Text>
           <TextInput
             style={styles.input}
             value={measurement.value}
@@ -56,7 +64,7 @@ const UpdateMeasurements = () => {
               setNewMeasurements(updatedMeasurements);
             }}
             keyboardType="numeric"
-            placeholder="Enter value"
+            placeholder={`Enter value in ${measurement.unit}`}
             placeholderTextColor="#999"
           />
         </View>

@@ -15,7 +15,7 @@ const SignIn = () => {
   const navigation = useNavigation<SignInScreenNavigationProp>();
 
   const [request, response, promptAsync] = Facebook.useAuthRequest({
-    clientId: '1:828603558193:web:b03585fc6ef17981a0e810',
+    clientId: '1118471739446165',
     redirectUri: 'https://workout-notes-7a343.firebaseapp.com/__/auth/handler'
   });
 

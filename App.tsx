@@ -17,6 +17,7 @@ import CalendarScreen from './app/history/Calendar';
 import History from './app/history/History';
 import EditRoutine from './app/screens/EditRoutine';
 import WorkoutDetails from './app/history/WorkoutDetails';
+import Goals from './app/screens/Goals';
 
 export type Measurement = {
   name: string;
@@ -50,6 +51,7 @@ export type RootStackParamList = {
   History: undefined;
   EditRoutine: { routineId: string };
   WorkoutDetails: { workoutId: string };
+  Goals: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -74,6 +76,7 @@ export default function App() {
         <Stack.Screen name="History" component={History} options={{ headerShown: false }} />
         <Stack.Screen name="EditRoutine" component={EditRoutine} options={{ headerShown: false }} />
         <Stack.Screen name="WorkoutDetails" component={WorkoutDetails} options={{ headerShown: false }} />
+        <Stack.Screen name="Goals" component={Goals} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

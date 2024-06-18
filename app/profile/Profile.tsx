@@ -61,11 +61,17 @@ const Profile = () => {
       });
   };
 
-  const renderMeasurement = ({ item }: { item: Measurement }) => (
-    <View style={styles.measurementContainer}>
-      <Text style={styles.measurementText}>{item.name}: {item.value}</Text>
-    </View>
-  );
+  const renderMeasurement = ({ item }: { item: Measurement }) => {
+    let unit = 'cm';
+    if (item.name === 'Weight') {
+      unit = 'kg';
+    }
+    return (
+      <View style={styles.measurementContainer}>
+        <Text style={styles.measurementText}>{item.name}: {item.value} {unit}</Text>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.background}>
